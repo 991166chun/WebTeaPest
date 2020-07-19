@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Require meta tags-->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+        <style type="text/css">
+            
+            #LeftImage{
+                width:60%;
+                height:auto;
+                font-family: "Microsoft JhengHei";
+                float:left;
+                background-color:#cecece;
+            }
+            #RightText{
+                width:40%;
+                height:auto;
+                background-color:#fffaf3;
+                font-family: "Microsoft JhengHei";
+                float:left;
+            }
+
+            h1 {
+                font-family: "Microsoft JhengHei";
+                font-size: 32px;
+            }
+            
+            </style>
+
+        <title>Demo Page</title>
+    </head>
+    <body>
+
+        <h1> 病蟲害辨識網頁 - 範例網頁 </h1>
+        <div id = "LeftImage">
+            <img src="../media/img/0673.jpg" alt="demo image" style="max-width:100%;"><br/>
+            
+                <button onclick="self.location.href='../uploadImg/'">重新上傳</button>
+            </p>
+        </div>
+        <div id="RightText">        
+            <div class="panel-group" id="accordion" >
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" 
+                            href="#collapseOne">
+                            A: 盲椿象(早期)   
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            危害程度：需及早預防<br>
+                            典型病徵：<br>
+                            <img src="../media/demo/mosquito_early.jpg" alt="demo image" height=60px ><br/>
+                            病害說明：<br>
+                            茶角盲椿象對茶園的危害較為嚴重，因其喜食植物幼嫩組織而
+                            經常危害茶樹嫩葉，此為茶角盲椿象早期之危害病斑，為水浸狀傷口，
+                            過一段時間後會自病斑外緣開始褐化。而不同蟲齡之茶角盲椿象
+                            有危害病斑大小的差異，幼蟲吸食痕跡為佈滿葉面之小點，成蟲之危害病斑
+                            則面積較大。在危害初期就必須積極防治。
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" 
+                            href="#collapseTwo">
+                                B: 赤葉枯病
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            危害程度：嚴重<br>
+                            典型病徵：<br>
+                            <img src="../media/demo/brownblight.jpg" alt="demo image" height=60px ><br>
+                            病害說明：<br>
+                            赤葉枯病屬於炭疽菌類，在機械採收的茶園中，經常因採收造成茶葉傷害，
+                            葉片的切面或是害蟲咬過的傷口便容易發生赤葉枯病。
+                            赤葉枯病胞子多透過雨水傳播附著在葉片上，待葉片出現傷口才會危害茶樹，
+                            嚴重會導致茶樹落葉且整株枯萎，因此在採收過後及蟲害發生後都需要注意防治。
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" 
+                            href="#collapseThree">
+                                C: 茶姬捲葉蛾
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            危害程度：嚴重<br>
+                            典型病徵：捲葉與其傷口<br>
+                            <img src="../media/demo/tortrix_leaf.jpg" alt="demo image" height=60px >
+                            <img src="../media/demo/tortrix_harm.jpg" alt="demo image" height=60px >
+                            <br>
+                            病害說明：<br>
+                            茶姬捲葉蛾會將卵產於茶樹嫩芽上，幼蟲孵化後會將茶芽捲起
+                            從內部啃食茶葉，於每年春茶末期至秋茶期間對茶樹造成嚴重
+                            危害。茶捲葉蛾也會將卵產在茶葉上，不同的是茶捲葉蛾幼蟲
+                            較容易出現在成熟茶葉上，
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </body>
+        
+</html>

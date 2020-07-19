@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Require meta tags-->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=0.7, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        
+        <style type="text/css">
+            
+            #LeftImage{
+                width:60%;
+                min-width: 600px;
+                max-width: 800px;
+                height:auto;
+                font-family: "Microsoft JhengHei";
+                float:left;
+                background-color:#cecece;
+            }
+            #RightText{
+                width:40%;
+                min-width: 500px;
+                height:auto;
+                background-color:#fffaf3;
+                font-family: "Microsoft JhengHei";
+                float:left;
+            }
+
+            h1 {
+                font-family: "Microsoft JhengHei";
+                font-size: 32px;
+            }
+            
+            </style>
+
+        <title>Demo Page</title>
+    </head>
+    <body>
+
+        <h1> 病蟲害辨識結果 - {{ imgs.img_name }} </h1>
+        <div id = "LeftImage">
+            <img src="{{ imgs.img_url.url }}" alt="demo image" style="max-width:100%;"><br/>
+            
+                
+        </div>
+        <div id="RightText">        
+            <div class="panel-group" id="accordion" >
+
+                {% for det in dets  %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" 
+                            href="#{{det.pred_id}}">
+                            {{det.context}}
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="{{det.pred_id}}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div id="page{{det.box_id}}"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+            <p>
+            <button type="button" class="btn btn-success btn-lg"
+                    onclick="self.location.href='../uploadImg/'">重新上傳</button>
+            </p>
+            {% for det2 in dets2  %}
+                <script>
+                    $("#page{{det2.box_id}}").load("/descript/{{det2.html_file}}.html");
+                </script>
+             {% endfor %}
+
+        </body>
+        
+</html>
