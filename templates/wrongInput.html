@@ -17,16 +17,25 @@
         }
         #body{
             width:100%;
-            height:40px;
+            height:160px;
             text-align:center;
             font-family: "Microsoft JhengHei";
         }
         #Footer{
             width:100%;
-            height:40px;
+            height:80px;
             text-align:center;
             font-family: "Microsoft JhengHei";
         }
+
+        #History{
+                width:100%;
+                height:40px;
+                line-height:20px;
+                text-align:left;
+                font-family: "Microsoft JhengHei";
+                font-size: 20px;
+            }
         input[type="file"] {
             display: none;
         }
@@ -51,6 +60,7 @@
             display: inline-block;
             cursor: pointer;
         }
+        
                  
     </style>
 
@@ -80,22 +90,24 @@
             <!-- <div style="width:20%;float:left"> -->
                 <input class="custom-view-result" type="submit" value="進行辨識 Start Identification">
 
-                <!-- <div id="History">
-                    <h2>查詢過往判別影像(使用影像ID)</h2>
-                    <p style="font-size: 20px;">Inquiry for Previous Identified Image (Using Image ID)</p>
-                    <form class="form-inline" action="../showHistory/">
-                      <div class="form-group">
-                        <label for="imgid"></label>
-                        <input type="text" class="form-control" id="imgid" placeholder="Enter image ID" name="imgid">
-                      </div>
-                      
-                      <button type="submit" class="btn btn-default">查詢 Inquire</button>
-                    </form>
-                  </div> -->
+                
             </div>
     </div>
         </form> 
-    </div>   
+        
+        <!-- <div id="History">
+            <h2>查詢過往判別影像(使用影像ID)</h2>
+            <p style="font-size: 20px;">Inquiry for Previous Identified Image (Using Image ID)</p>
+            <form class="form-inline" action="../showHistory/">
+              <div class="form-group">
+                <label for="imgid">ID:</label>
+                <input type="text" class="form-control" id="imgid" placeholder="Enter image ID" name="imgid">
+              </div>
+              
+              <button type="submit" class="btn btn-default">查詢 Inquire</button>
+            </form>
+          </div> -->
+    <!-- <button onclick="self.location.href='../showImg/'">Predict</button> -->
     </div>
 
 </body>

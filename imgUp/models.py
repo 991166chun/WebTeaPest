@@ -42,6 +42,7 @@ class Detection(models.Model):
     score = 0.995
     pred_box = [100,100,200,200]
     context = 'A: brownblight score: 0.995'
+    feedback = '判別錯誤'
     '''
     
     pred_id = models.CharField(max_length=100, primary_key=True)
@@ -55,6 +56,7 @@ class Detection(models.Model):
     xmax = models.IntegerField()
     ymax = models.IntegerField()
     context = models.TextField(max_length=100, help_text='A: 赤葉枯病 score: 0.995')
+    # feedback = models.TextField(max_length=100, null=True, blank=True, help_text='user feedback')
 
     class Meta:
         ordering = ['img_name', 'box_id']
@@ -63,6 +65,17 @@ class Detection(models.Model):
         return str(self.img_name) + ' ' + self.context
 
 
+class Feedback(models.Model):
 
+    pred = models.ForeignKey(Detection, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=datetime.now)
+    feedback = models.TextField(max_length=100, null=True, blank=True, help_text='user feedback')
+
+    class Meta:
+        ordering = ['-date']
+        get_latest_by = "date"
+
+    def __str__(self):
+        return str(self.pred)
 
 

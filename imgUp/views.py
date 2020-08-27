@@ -1,25 +1,107 @@
-from django.shortcuts import render
-from .models import Img, Detection, Prediction
-from .demo import demo2
+from django.shortcuts import render, redirect, reverse
+from django.http import HttpResponseRedirect
+from .models import Img, Detection, Prediction, Feedback
+from .forms import Feedbacks
+from .demo import demo
 from datetime import datetime
 #from django.utils import timezone
 #import pytz
+import os
+import shutil
 import json
 
 # Create your views here.
-def uploadImg(request):
+
+def main(request):
+
     if request.method == 'POST':
-        img_name = request.FILES.get('img')
-        print(img_name)
+        print(request.FILES)
+        if 'img' in request.FILES:
+            return uploadImg(request)
 
-        img = Img(img_name = img_name,
-                  img_url=img_name,
-                  date=datetime.now())
-        print(img.img_url.url)
-        img.save()
+        elif 'feedback' in request.POST:
+            return feedback(request)
 
-        demo2(str(img_name), img)
+        else:
+            context = {
+                'error_message' : 'ERROR: 未選擇檔案or檔名須為英文'
+            }
 
+            return render(request, 'wrongInput.html', context)
+            
+    
+    return render(request, 'imgUpload.html')
+
+def uploadImg(request):
+
+    if request.method == 'POST':
+        if True:
+        # try:
+            img_name = request.FILES.get('img')
+            datatime = datetime.now()
+            img_name, img = rename_time(img_name, datatime)
+
+            num = demo(img_name, img)
+
+            pred = Prediction.objects.get(img=img)
+            dets = Detection.objects.filter(img_name=pred)
+            print(img.img_url)
+            print(img.img_url.url)
+            
+            context = {
+                'imgs': img,
+                'dets': dets,
+                'dets2': dets,
+            }
+
+            if num == 0:
+                return render(request, 'NoResult.html', context)
+
+            return render(request, 'showImg2.html', context)
+        # except:
+        #     # if file empty or invalid file name
+        #     context = {
+        #         'error_message' : 'ERROR: 未選擇檔案or檔名須為英文'
+        #     }
+
+        #     return render(request, 'wrongInput.html', context)
+
+    return render(request, 'imgUpload.html')
+
+
+def rename_time(img_mem, datatime):
+    dt = datatime
+
+    img = Img(img_name = img_mem,
+                img_url=img_mem,
+                date=dt)
+    img.save()
+    img_name = str(img_mem)
+    date = '{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}'.format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+    newname = date + '.' + img_name.split('.')[-1]
+
+    o_img = 'media/img/' + img_name 
+    n_img = 'media/img/' + newname
+    os.rename(o_img, n_img)
+
+    copimg = 'media/ori_image/' + img_name
+    shutil.copyfile(n_img, copimg)
+
+    img.img_name = date
+    img.img_url = 'img/' + newname
+
+    img.save()
+
+    return n_img, img
+
+
+
+def showHistory(request):
+
+    imgid = request.GET['imgid']
+    
+    try:
+        img = Img.objects.get(img_name=imgid)
         pred = Prediction.objects.get(img=img)
         dets = Detection.objects.filter(img_name=pred)
         context = {
@@ -27,9 +109,18 @@ def uploadImg(request):
             'dets': dets,
             'dets2': dets,
         }
+
         return render(request, 'showImg2.html', context)
 
-    return render(request, 'imgUpload.html')
+    except:
+
+        context = {
+                'error_message' : 'ERROR: 輸入ID錯誤，該影像不存在'
+            }
+        return render(request, 'wrongInput.html', context)
+        # return redirect('uploadImg')
+
+
 
 def showHtml(request, f):
     context = {}
@@ -37,9 +128,12 @@ def showHtml(request, f):
     print(f)
     return render(request, values[1:], context)
 
-def showImg(request):
+def showImg(request, img_id=None):
     
-    img = Img.objects.latest()
+    if img_id == None:
+        img = Img.objects.latest()
+    else:
+        img = Img.objects.get(img_name=img_id)
     pred = Prediction.objects.get(img=img)
     dets = Detection.objects.filter(img_name=pred)
     context = {
@@ -59,33 +153,25 @@ def showDemo(request):
 
 
 
+def feedback(request):
 
+    if request.POST['feedback'] is not '':
 
+        # form = Feedbacks(request.POST)
+        # print('form is valid :', form.is_valid())
+        pred_id = request.POST['pred_id']
+        det = Detection.objects.get(pred_id=pred_id)
+        fb = Feedback(
+            pred = det,
+            date = datetime.now(),
+            feedback = request.POST['feedback'],
+        )
+        fb.save()
 
-def demo(img_name):
-    from .mmdetection.mmdet.apis import init_detector, inference_detector, show_result
-    import mmcv
-    config_file = 'imgUp/mmdetection/cascade.py'
-    # download the checkpoint from model zoo and put it in `checkpoints/`
-    checkpoint_file = 'imgUp/mmdetection/epo_72_cas_50.pth'
-    # build the model from a config file and a checkpoint file
-    model = init_detector(config_file, checkpoint_file, device='cuda:0')
-    # test a single image
-    img = 'media/img/' + img_name
-    img_out = 'media/output/' + img_name
-    result = inference_detector(model, img)
-    # show the results
-    # 'brownblight', 'fungi_early', 'blister', 'algal', 'miner', 
-    # 'thrips', 'roller', 'roll_leaf', 'mosquito', flushworm'
-    # show_result_pyplot(img, result, model.CLASSES)
-    print(model.CLASSES)
-    show_result(img,
-                result,
-                model.CLASSES,
-                score_thr=0.3,
-                show=False,
-                out_file=img)
-    return result
+    img_id = request.POST['img_id']
+
+    # img_name = request.FILES.get('img')
+    return showImg(request, img_id)
 
 
     
@@ -112,7 +198,6 @@ def db_test(img, result):
     )
     det.save()
 
-    
 
 def det_to_json(img_name, result, classes):
     json_name = img_name[:-4] + '.json'

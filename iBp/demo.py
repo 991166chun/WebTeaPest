@@ -51,6 +51,18 @@ def read_label_color(file, BGR=True):
         
     return color_dict
 
+def rename_time(img_name, img):
+    dt = img.date
+    date = '{:02d}{:02d}{:02d}{:02d}{:02d}'.format(dt.month, dt.day, dt.hour, dt.minute, dt.second)
+    newname = date + '.' + img_name.split('.')[-1]
+    o_img = 'media/img/' + img_name 
+    n_img = 'media/img/' + newname
+    os.rename(o_img, n_img)
+    img.img_name = date
+    img.img_url = 'img/' + newname
+    img.save()
+    return n_img, newname
+
 def pred_img(img_name):
 
     from mmdet.apis import init_detector, inference_detector
@@ -62,8 +74,9 @@ def pred_img(img_name):
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
     # test a single image
     
+
     #img_out = 'media/output/' + img_name
-    result = inference_detector(model, img_name)
+    result = inference_detector(model, img)
 
     colorfile = 'imgUp/color.txt'
     colors = read_label_color(colorfile)
@@ -76,27 +89,44 @@ def pred_img(img_name):
     ]
     
     labels = np.concatenate(labels)
-    classes = model.CLASSES
-    return labels, bboxes, classes
+    return labels, bboxes
 
 def demo(img_name, imgd):
 
-    labels, bboxes, classes = pred_img(img_name)
+    labels, bboxes = pred_img(img_name)
 
     colorfile = 'imgUp/color.txt'
     colors = read_label_color(colorfile)
 
-    i = draw_det_bboxes_A(img_name,
-                        bboxes,
-                        labels,
-                        imgd,
-                        colors=colors,
-                        width=800,
-                        class_names=classes,
-                        score_thr=0.5,
-                        out_file=img_name)
+    i = draw_det_bboxes_A(img,
+                    bboxes,
+                    labels,
+                    imgd,
+                    colors=colors,
+                    width=800,
+                    class_names=model.CLASSES,
+                    score_thr=0.5,
+                    out_file=img)
     return i
 
+def demoIBP(img_name):
+
+    labels, bboxes = pred_img(img_name)
+
+    colorfile = 'imgUp/color.txt'
+    colors = read_label_color(colorfile)
+
+    context = draw_bboxes(img_name,
+                    bboxes,
+                    labels,
+                    context,
+                    colors=colors,
+                    write_det=False,
+                    class_names=model.CLASSES,
+                    score_thr=0.5,
+                    out_file=img_name)
+                    
+    return context
 
 
 def draw_det_bboxes_A(img_name,
@@ -104,6 +134,7 @@ def draw_det_bboxes_A(img_name,
                         labels,
                         imgd,
                         colors,
+                        write_det=True,
                         width=None,
                         class_names=None,
                         score_thr=0.5,
@@ -119,6 +150,7 @@ def draw_det_bboxes_A(img_name,
         score_thr (float): Minimum score of bboxes to be shown.
         out_file (str or None): The filename to write the image.
     """
+    assert write_det & isinstance(imgd, dict):
     assert bboxes.ndim == 2
     assert labels.ndim == 1
     assert bboxes.shape[0] == labels.shape[0]
@@ -129,8 +161,12 @@ def draw_det_bboxes_A(img_name,
     
     ori_size = img.shape
 
-    ratio = width/ori_size[0]
-    img = cv2.resize(img, (int(ori_size[1]*ratio),int(ori_size[0]*ratio)))
+    if width == None:
+        width = ori_size[0]
+        ratio = 1
+    else:
+        ratio = width/ori_size[0]
+        img = cv2.resize(img, (int(ori_size[1]*ratio),int(ori_size[0]*ratio)))
     
     scores = bboxes[:, -1]
 
@@ -141,10 +177,11 @@ def draw_det_bboxes_A(img_name,
         labels = labels[inds]
         scores = scores[inds]
 
-    Pred = Prediction(img_name = str(imgd),
-                        pred_num = labels.shape[0],
-                        img = imgd)
-    Pred.save()
+    if write_det:
+        Pred = Prediction(img_name = str(imgd),
+                            pred_num = labels.shape[0],
+                            img = imgd)
+        Pred.save()
 
     ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     i = 0
@@ -157,12 +194,14 @@ def draw_det_bboxes_A(img_name,
         
         bbox = bbox*ratio
         bbox_int = bbox.astype(np.int32)
-
-        write_det(Pred,
-                box_id,
-                pred_cls,
-                score,
-                bbox_int)
+        if write_det:
+            write_det(Pred,
+                    box_id,
+                    pred_cls,
+                    score,
+                    bbox_int)
+        else:
+            write_json()
         
         left_top = (bbox_int[0], bbox_int[1])
         right_bottom = (bbox_int[2], bbox_int[3])
@@ -186,6 +225,99 @@ def draw_det_bboxes_A(img_name,
     return i
 
 
+def draw_bboxes(img_name,
+                        bboxes,
+                        labels,
+                        colors,
+                        width=800,
+                        class_names=None,
+                        score_thr=0,
+                        out_file=None):
+    """Draw bboxes and class labels (with scores) on an image.
+
+    Args:
+        img (str or ndarray): The image to be displayed.
+        bboxes (ndarray): Bounding boxes (with scores), shaped (n, 4) or
+            (n, 5).
+        labels (ndarray): Labels of bboxes.
+        class_names (list[str]): Names of each classes.
+        score_thr (float): Minimum score of bboxes to be shown.
+        out_file (str or None): The filename to write the image.
+    """
+    assert bboxes.ndim == 2
+    assert labels.ndim == 1
+    assert bboxes.shape[0] == labels.shape[0]
+    assert bboxes.shape[1] == 4 or bboxes.shape[1] == 5
+    
+    img = imread(img_name)
+    img = img.copy()
+    
+    ori_size = img.shape
+    ratio = width/ori_size[0]
+    img = cv2.resize(img, (int(ori_size[1]*ratio),int(ori_size[0]*ratio)))
+    
+    scores = bboxes[:, -1]
+    if score_thr > 0:
+        assert bboxes.shape[1] == 5
+        inds = scores > score_thr
+        bboxes = bboxes[inds, :]
+        labels = labels[inds]
+        scores = scores[inds]
+
+
+    ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    i = 0
+
+    
+
+    for bbox, label, score in zip(bboxes, labels, scores):
+        
+        pred_cls = class_names[label]
+        color = colors[pred_cls]
+        box_id = ABC[i]
+        
+        bbox = bbox*ratio
+        bbox_int = bbox.astype(np.int32)
+        
+        left_top = (bbox_int[0], bbox_int[1])
+        right_bottom = (bbox_int[2], bbox_int[3])
+        
+        cv2.rectangle(img, (left_top[0], left_top[1]),
+                      (right_bottom[0], right_bottom[1]), color, 4)
+        text_size, baseline = cv2.getTextSize(box_id,
+                                              cv2.FONT_HERSHEY_SIMPLEX, 1.3, 2)
+        p1 = (left_top[0], left_top[1] + text_size[1])
+        cv2.rectangle(img, tuple(left_top), (p1[0] + text_size[0], p1[1]+1 ), color, -1)
+        cv2.putText(img, box_id, (p1[0], p1[1]),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255,255,255), 2, 8)
+    
+    imwrite(img, out_file)                
+      
+    
+    return context
+
+def init_json(dataTime, num):
+    context = {
+        "dataTime": dataTime, # 時間ID, 與原來接收之ID相同
+        # "resultImage": image_file,
+        "numofPredictions": 0,           # int, 總計辨識框數量，通常不會多於20
+        "pestTable": {   # 共12種病蟲害，每一項目皆為陣列，內含該種類之所有預測結果
+            'mosquito_early':[],
+            'mosquito_late':[],                                 #'盲椿象_晚期',
+            'brownblight': [],                                  #'赤葉枯病',
+            'fungi_early': [],   #'真菌性病害_早期',
+            'blister': [],                                      #'茶餅病',
+            'algal': [],                                        #'藻斑病',
+            'miner': [],                                        #'潛葉蠅',
+            'thrips': [],        #'薊馬',
+            'roller': [],                                       #'茶捲葉蛾_傷口',
+            'moth': [],                                         #'茶姬捲葉蛾_傷口',
+            'tortrix': [],                                      #'茶姬捲葉蛾_捲葉',
+            'flushworm': [],                                    #'黑姬捲葉蛾',
+            },
+    }
+
+    return context
 
 def write_det(Pred, box_id, pred_cls, score, bbox_int):
     table = {

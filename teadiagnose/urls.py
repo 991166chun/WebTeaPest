@@ -17,28 +17,20 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from imgUp.views import uploadImg, showImg, getStart, showDemo, showHtml
+from imgUp.views import uploadImg, main, getStart, showDemo, showHtml, showHistory, feedback
+# from iBp.views import ibpinterface
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', getStart),
     path('demopage/', showDemo),
-    path('uploadImg/', uploadImg),
-    path('showImg/', showImg),
-    path('uploadImg/showImg/', showImg),
-    #path('showImg/<str:f>/', showImg),
+    path('uploadImg/', uploadImg, name='uploadImg'),
+    path('showImg/', main),
+    path('showHistory/', showHistory),
+    # path('showImg/', feedback),
     path('descript/<str:f>/', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
-    # path('descript/tortrix.html', showHtml),
+    path('showImg/<str:f>/', main),
+    # path('iBpInterface/', ibpinterface),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
