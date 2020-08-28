@@ -18,7 +18,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from imgUp.views import uploadImg, main, getStart, showDemo, showHtml, showHistory, feedback
-# from iBp.views import ibpinterface
+from iBp.views import ibpinterface
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,7 +30,7 @@ urlpatterns = [
     # path('showImg/', feedback),
     path('descript/<str:f>/', showHtml),
     path('showImg/<str:f>/', main),
-    # path('iBpInterface/', ibpinterface),
+    path('iBpInterface/', ibpinterface),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

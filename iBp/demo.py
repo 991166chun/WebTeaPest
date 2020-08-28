@@ -2,27 +2,51 @@
 
 import sys
 import os
+import re
 import csv
 import shutil
 from cv2 import cv2
+import base64
+from io import BytesIO
+from PIL import Image
+import json
 import numpy as np
-from .models import Img, Detection, Prediction
 from mmcv.image import imread, imwrite
 from datetime import datetime
 
 
 def demo_test():
-    img_name = 'test.jpg'
-    img = 'media/img/' + img_name
-
-    img = Img(img_name = img_name,
-            img_url=img_name,
-            date=datetime.now())
-    img.save()
+    img_name = '0721192833.jpg'
+    img = 'media/test/' + img_name
+    img64 = image_to_base64(img)
+    img64 = str(img64, encoding='utf-8')
+    json_recieve = {
+        "dataTime": "2020-08-21 12:43:45", # 影像的時間ID :"2019-11-03 21:43:45"
+        "Image": img64,   # 需預測的影像 base64 編碼
+    }
+    ret1 = json.dumps(json_recieve)
+    with open('recieve.json', 'w') as fp:
+        fp.write(ret1)
 
     
-    demo(str(img_name), img)
+    demoIBP('recieve.json')
 
+def image_to_base64(image_path):
+    img = Image.open(image_path)
+    output_buffer = BytesIO()
+    img.save(output_buffer, format='JPEG')
+    byte_data = output_buffer.getvalue()
+    base64_str = base64.b64encode(byte_data)
+    return base64_str
+
+def base64_to_image(base64_str, image_path=None):
+    base64_data = re.sub('^data:image/.+;base64,', '', base64_str)
+    byte_data = base64.b64decode(base64_data)
+    image_data = BytesIO(byte_data)
+    img = Image.open(image_data)
+    if image_path:
+        img.save(image_path)
+    return image_path
 
 def read_label_color(file, BGR=True):
     '''
@@ -51,17 +75,38 @@ def read_label_color(file, BGR=True):
         
     return color_dict
 
-def rename_time(img_name, img):
-    dt = img.date
-    date = '{:02d}{:02d}{:02d}{:02d}{:02d}'.format(dt.month, dt.day, dt.hour, dt.minute, dt.second)
-    newname = date + '.' + img_name.split('.')[-1]
-    o_img = 'media/img/' + img_name 
-    n_img = 'media/img/' + newname
-    os.rename(o_img, n_img)
-    img.img_name = date
-    img.img_url = 'img/' + newname
-    img.save()
-    return n_img, newname
+
+def demoIBP(inputjson):
+    # print(type(inputjson))
+    img_name = 'media/iBp_temp/input.jpg'
+    out_name = 'media/iBp_temp/output.jpg'
+
+    img_name = base64_to_image(inputjson['Image'], img_name) 
+
+    context = init_json(inputjson['dataTime'])
+    
+    labels, bboxes, classes = pred_img(img_name)
+
+    colorfile = 'imgUp/color.txt'
+    colors = read_label_color(colorfile)
+
+    context = draw_bboxes(img_name,
+                    bboxes,
+                    labels,
+                    context,
+                    colors=colors,
+                    class_names=classes,
+                    score_thr=0.5,
+                    out_file=out_name)
+
+    context["imageURL"] = "http://140.112.183.138:1007/media/iBp_temp/output.jpg"
+    write_base64 = True
+    if write_base64:
+        out64 = image_to_base64(out_name)
+        context["resultImage"] = str(out64, encoding='utf-8')
+        
+
+    return context
 
 def pred_img(img_name):
 
@@ -74,9 +119,9 @@ def pred_img(img_name):
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
     # test a single image
     
-
+    print(img_name)
     #img_out = 'media/output/' + img_name
-    result = inference_detector(model, img)
+    result = inference_detector(model, img_name)
 
     colorfile = 'imgUp/color.txt'
     colors = read_label_color(colorfile)
@@ -89,56 +134,18 @@ def pred_img(img_name):
     ]
     
     labels = np.concatenate(labels)
-    return labels, bboxes
+    classes = model.CLASSES
+    return labels, bboxes, classes
 
-def demo(img_name, imgd):
-
-    labels, bboxes = pred_img(img_name)
-
-    colorfile = 'imgUp/color.txt'
-    colors = read_label_color(colorfile)
-
-    i = draw_det_bboxes_A(img,
-                    bboxes,
-                    labels,
-                    imgd,
-                    colors=colors,
-                    width=800,
-                    class_names=model.CLASSES,
-                    score_thr=0.5,
-                    out_file=img)
-    return i
-
-def demoIBP(img_name):
-
-    labels, bboxes = pred_img(img_name)
-
-    colorfile = 'imgUp/color.txt'
-    colors = read_label_color(colorfile)
-
-    context = draw_bboxes(img_name,
-                    bboxes,
-                    labels,
-                    context,
-                    colors=colors,
-                    write_det=False,
-                    class_names=model.CLASSES,
-                    score_thr=0.5,
-                    out_file=img_name)
-                    
-    return context
-
-
-def draw_det_bboxes_A(img_name,
-                        bboxes,
-                        labels,
-                        imgd,
-                        colors,
-                        write_det=True,
-                        width=None,
-                        class_names=None,
-                        score_thr=0.5,
-                        out_file=None):
+def draw_bboxes(img_name,
+                bboxes,
+                labels,
+                context,
+                colors,
+                width=None,
+                class_names=None,
+                score_thr=0.5,
+                out_file=None):
     """Draw bboxes and class labels (with scores) on an image.
 
     Args:
@@ -150,7 +157,6 @@ def draw_det_bboxes_A(img_name,
         score_thr (float): Minimum score of bboxes to be shown.
         out_file (str or None): The filename to write the image.
     """
-    assert write_det & isinstance(imgd, dict):
     assert bboxes.ndim == 2
     assert labels.ndim == 1
     assert bboxes.shape[0] == labels.shape[0]
@@ -161,13 +167,9 @@ def draw_det_bboxes_A(img_name,
     
     ori_size = img.shape
 
-    if width == None:
-        width = ori_size[0]
-        ratio = 1
-    else:
-        ratio = width/ori_size[0]
-        img = cv2.resize(img, (int(ori_size[1]*ratio),int(ori_size[0]*ratio)))
-    
+    width = ori_size[0]
+    ratio = 1
+    pr = ori_size[0]/800
     scores = bboxes[:, -1]
 
     if score_thr > 0.0:
@@ -177,11 +179,8 @@ def draw_det_bboxes_A(img_name,
         labels = labels[inds]
         scores = scores[inds]
 
-    if write_det:
-        Pred = Prediction(img_name = str(imgd),
-                            pred_num = labels.shape[0],
-                            img = imgd)
-        Pred.save()
+    pred_num = labels.shape[0]
+    context["numofPredictions"] = pred_num
 
     ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     i = 0
@@ -194,112 +193,41 @@ def draw_det_bboxes_A(img_name,
         
         bbox = bbox*ratio
         bbox_int = bbox.astype(np.int32)
-        if write_det:
-            write_det(Pred,
-                    box_id,
-                    pred_cls,
-                    score,
-                    bbox_int)
-        else:
-            write_json()
+
+        det =  {"bboxId":box_id, "score": float(score) ,
+                "xmin":int(bbox_int[0]), "ymin":int(bbox_int[1]),
+                "xmax":int(bbox_int[2]), "ymax":int(bbox_int[3]) }
+
+        context["pestTable"][pred_cls].append(det)
         
         left_top = (bbox_int[0], bbox_int[1])
         right_bottom = (bbox_int[2], bbox_int[3])
         
         cv2.rectangle(img, (left_top[0], left_top[1]),
-                      (right_bottom[0], right_bottom[1]), color, 4)
+                      (right_bottom[0], right_bottom[1]), color, int(4*pr))
         text_size, baseline = cv2.getTextSize(box_id,
-                                              cv2.FONT_HERSHEY_SIMPLEX, 1.3, 2)
+                                              cv2.FONT_HERSHEY_SIMPLEX, int(1.3*pr), int(2*pr))
         p1 = (left_top[0], left_top[1] + text_size[1])
         cv2.rectangle(img, tuple(left_top), (p1[0] + text_size[0], p1[1]+1 ), color, -1)
         cv2.putText(img, box_id, (p1[0], p1[1]),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255,255,255), 2, 8)
+                    cv2.FONT_HERSHEY_SIMPLEX, int(1.3*pr), (255,255,255), int(2*pr), 8)
         
         i += 1
         
         
     print('done   '+ str(out_file))
-    
-    if out_file is not None:
-        imwrite(img, out_file)
-    return i
-
-
-def draw_bboxes(img_name,
-                        bboxes,
-                        labels,
-                        colors,
-                        width=800,
-                        class_names=None,
-                        score_thr=0,
-                        out_file=None):
-    """Draw bboxes and class labels (with scores) on an image.
-
-    Args:
-        img (str or ndarray): The image to be displayed.
-        bboxes (ndarray): Bounding boxes (with scores), shaped (n, 4) or
-            (n, 5).
-        labels (ndarray): Labels of bboxes.
-        class_names (list[str]): Names of each classes.
-        score_thr (float): Minimum score of bboxes to be shown.
-        out_file (str or None): The filename to write the image.
-    """
-    assert bboxes.ndim == 2
-    assert labels.ndim == 1
-    assert bboxes.shape[0] == labels.shape[0]
-    assert bboxes.shape[1] == 4 or bboxes.shape[1] == 5
-    
-    img = imread(img_name)
-    img = img.copy()
-    
-    ori_size = img.shape
-    ratio = width/ori_size[0]
-    img = cv2.resize(img, (int(ori_size[1]*ratio),int(ori_size[0]*ratio)))
-    
-    scores = bboxes[:, -1]
-    if score_thr > 0:
-        assert bboxes.shape[1] == 5
-        inds = scores > score_thr
-        bboxes = bboxes[inds, :]
-        labels = labels[inds]
-        scores = scores[inds]
-
-
-    ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    i = 0
-
-    
-
-    for bbox, label, score in zip(bboxes, labels, scores):
         
-        pred_cls = class_names[label]
-        color = colors[pred_cls]
-        box_id = ABC[i]
-        
-        bbox = bbox*ratio
-        bbox_int = bbox.astype(np.int32)
-        
-        left_top = (bbox_int[0], bbox_int[1])
-        right_bottom = (bbox_int[2], bbox_int[3])
-        
-        cv2.rectangle(img, (left_top[0], left_top[1]),
-                      (right_bottom[0], right_bottom[1]), color, 4)
-        text_size, baseline = cv2.getTextSize(box_id,
-                                              cv2.FONT_HERSHEY_SIMPLEX, 1.3, 2)
-        p1 = (left_top[0], left_top[1] + text_size[1])
-        cv2.rectangle(img, tuple(left_top), (p1[0] + text_size[0], p1[1]+1 ), color, -1)
-        cv2.putText(img, box_id, (p1[0], p1[1]),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255,255,255), 2, 8)
-    
-    imwrite(img, out_file)                
-      
+    imwrite(img, out_file)
     
     return context
 
-def init_json(dataTime, num):
+
+
+def init_json(dataTime):
     context = {
         "dataTime": dataTime, # 時間ID, 與原來接收之ID相同
-        # "resultImage": image_file,
+        "imageURL":"",
+        "resultImage": "",
         "numofPredictions": 0,           # int, 總計辨識框數量，通常不會多於20
         "pestTable": {   # 共12種病蟲害，每一項目皆為陣列，內含該種類之所有預測結果
             'mosquito_early':[],

@@ -1,42 +1,41 @@
 from django.shortcuts import render, redirect
 import requests
-from ..demo import demoIBP
+from .demo import demoIBP
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator 
+from django.views.decorators.csrf import csrf_exempt
+
 # Create your views here.
 
 
-
-def main(request):
-
+@method_decorator(csrf_exempt)
+def ibpinterface(request):
+    print("recieve from iBP!")
+    # print(request)
     if request.method == 'POST':
-        print(request.FILES)
-        if 'img' in request.FILES:
-            return process(request)
-
-        else:
-            pass
-
-def process(request):
-
-    if request.method == 'POST':
-        # if True:
+        # print(dir(request))
+        body = request.body
+        body = body.decode('utf8')
+        data = json.loads(body)
         try:
-            img_name = request.FILES.get('img')
+            data = json.loads(data)
+        except:
+            pass
+        # print(type(data))
+        # print(data)
+        try:
+            if 'Image' in data:
 
-            print(img_name)
-            
-            context = demoIBP(str(img_name))
-
-
-            return requests.post('', data = context)
+                context = demoIBP(data)
+                # print(context)
+                return JsonResponse(context)
+            else:
+                context = {"fail":000}
             
         except:
+            context = {"fail":000}
 
-            pass
-            # if file empty or invalid file name
-            # context = {
-            #     'error_message' : 'ERROR: 未選擇檔案or檔名須為英文'
-            # }
+        return JsonResponse(context)
 
-            # return render(request, 'wrongInput.html', context)
-
-    # return render(request, 'imgUpload.html')
