@@ -84,7 +84,7 @@ def rename_time(img_mem, datatime):
     n_img = 'media/img/' + newname
     os.rename(o_img, n_img)
 
-    copimg = 'media/ori_image/' + img_name
+    copimg = 'media/ori_image/' + newname
     shutil.copyfile(n_img, copimg)
 
     img.img_name = date

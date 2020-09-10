@@ -1,6 +1,7 @@
 __pycache__/
 ori_image/
 img/
+iBp_temp/
 mmdetection/
 # Distribution / packaging
 .Python
@@ -21,3 +22,5 @@ wheels/
 *.egg
 MANIFEST
 teadiagnose/settings.py
+nohup.out
+settings.json
