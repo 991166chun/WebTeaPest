@@ -1,5 +1,8 @@
 from django.db import models
 from datetime import datetime
+from sorl.thumbnail import get_thumbnail
+from django.utils.html import format_html
+
 
 # Create your models here.
 class Img(models.Model):
@@ -15,6 +18,17 @@ class Img(models.Model):
 
     def __str__(self):
         return str(self.img_name)
+    
+    @property
+    def image_preview(self):
+        if self.img_url:
+            thumbnail = get_thumbnail(self.img_url,
+                                   '300x300',
+                                   upscale=False,
+                                   crop=False,
+                                   quality=100)
+            return format_html('<img src="{}" width="{}" height="{}">'.format(thumbnail.url, thumbnail.width, thumbnail.height))
+        return ""
 
 class Prediction(models.Model):
     '''
