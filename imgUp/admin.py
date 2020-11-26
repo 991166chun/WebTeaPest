@@ -5,6 +5,7 @@ from .models import Img, Detection, Prediction, Feedback
 # from .forms import Feedbacks
 
 class ImgAdmin(admin.ModelAdmin):
+    # list_display = ('img_name','date'）
     list_display = ('img_name','date','image_preview')
     readonly_fields = ('image_preview',)
 

@@ -25,6 +25,7 @@ def ibpinterface(request):
             pass
         # print(type(data))
         # print(data)
+        # if True:
         try:
             if 'Image' in data:
 

@@ -27,7 +27,10 @@ class Img(models.Model):
                                    upscale=False,
                                    crop=False,
                                    quality=100)
-            return format_html('<img src="{}" width="{}" height="{}">'.format(thumbnail.url, thumbnail.width, thumbnail.height))
+            try:
+                return format_html('<img src="{}" width="{}" height="{}">'.format(thumbnail.url, thumbnail.width, thumbnail.height))
+            except:
+                return format_html('<img src="../../../media/noimage.jpg" width="225">')
         return ""
 
 class Prediction(models.Model):

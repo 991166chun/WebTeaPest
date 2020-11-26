@@ -108,13 +108,45 @@ def demoIBP(inputjson):
 
     return context
 
+def demoLinebot(inputimage):
+    # print(type(inputjson))
+    img_name = 'media/iBp_temp/input.jpg'
+    out_name = 'media/iBp_temp/output.jpg'
+
+    img_name = inputimage 
+
+    context = init_json(1)
+    
+    labels, bboxes, classes = pred_img(img_name)
+
+    colorfile = 'imgUp/color.txt'
+    colors = read_label_color(colorfile)
+
+    context = draw_bboxes(img_name,
+                    bboxes,
+                    labels,
+                    context,
+                    colors=colors,
+                    class_names=classes,
+                    score_thr=0.5,
+                    out_file=out_name)
+
+    write_base64 = True
+    if write_base64:
+        out64 = image_to_base64(out_name)
+        context["resultImage"] = out64
+        
+
+    return context
+    
+
 def pred_img(img_name):
 
     from mmdet.apis import init_detector, inference_detector
 
-    config_file = '/home/chun/TeaDisease/configs/_xm/cascade_webdemo.py'
+    config_file = '/home/ssl/TeaDisease/configs/_xm/cascade_webdemo.py'
     # download the checkpoint from model zoo and put it in `checkpoints/`
-    checkpoint_file = '/home/chun/TeaDisease/work_dirs/web/crcnn_101x_final.pth'
+    checkpoint_file = '/home/ssl/TeaDisease/work_dirs/web/crcnn_101x_final.pth'
     # build the model from a config file and a checkpoint file
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
     # test a single image

@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from imgUp.views import uploadImg, main, getStart, showDemo, showHtml, showHistory, feedback
@@ -31,7 +31,6 @@ urlpatterns = [
     path('descript/<str:f>/', showHtml),
     path('showImg/<str:f>/', main),
     path('iBpInterface/', ibpinterface),
+    path('tealinebot/', include('tealinebot.urls'))
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
