@@ -4,8 +4,6 @@ img/
 iBp_temp/
 mmdetection/
 *.jpg
-static/admin/
-imgUp/migrations/
 # Distribution / packaging
 .Python
 build/
@@ -27,3 +25,6 @@ MANIFEST
 teadiagnose/settings.py
 nohup.out
 settings.json
+
+static/admin/
+imgUp/migrations/

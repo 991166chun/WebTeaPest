@@ -11,6 +11,10 @@ class Img(models.Model):
     img_url = models.ImageField(upload_to='img')
     #out_url = models.ImageField(upload_to='output')
     date = models.DateTimeField(default=datetime.now)
+    pred_num = models.IntegerField(default=0)
+    region = models.CharField(max_length=100, blank=True, help_text='拍攝地 ex. 新北市')
+    altitude = models.CharField(max_length=20, blank=True, help_text='海拔高度')
+    gps = models.CharField(max_length=20, blank=True, help_text='gps 位址')
 
     class Meta:
         ordering = ['-date']
@@ -27,24 +31,28 @@ class Img(models.Model):
                                    upscale=False,
                                    crop=False,
                                    quality=100)
-            return format_html('<img src="{}" width="{}" height="{}">'.format(thumbnail.url, thumbnail.width, thumbnail.height))
+            # print(thumbnail.url)
+            try:
+                return format_html('<img src="{}" width="{}" height="{}">'.format(thumbnail.url, thumbnail.width, thumbnail.height))
+            except:
+                return format_html('<img src="../../../media/noimg.jpg" width="225">')
         return ""
 
-class Prediction(models.Model):
-    '''
-    img_name = '0001.jpg'
-    pred_num = 5
-    img = img
-    '''
-    img_name = models.CharField(max_length=100, help_text='image name of the prediction')
-    pred_num = models.IntegerField()
-    img = models.OneToOneField(Img, on_delete=models.CASCADE)
+# class Prediction(models.Model):
+#     '''
+#     img_name = '0001.jpg'
+#     pred_num = 5
+#     img = img
+#     '''
+#     img_name = models.CharField(max_length=100, help_text='image name of the prediction')
+#     pred_num = models.IntegerField()
+#     img = models.OneToOneField(Img, on_delete=models.CASCADE)
 
-    class Meta:
-        ordering = ['img']
+#     class Meta:
+#         ordering = ['img']
 
-    def __str__(self):
-        return self.img_name
+#     def __str__(self):
+#         return self.img_name
 
 class Detection(models.Model):
     '''
@@ -60,7 +68,9 @@ class Detection(models.Model):
     '''
     
     pred_id = models.CharField(max_length=100, primary_key=True)
-    img_name = models.ForeignKey(Prediction, on_delete=models.CASCADE)
+    img_name = models.CharField(max_length=100, null=True)
+    img_data = models.ForeignKey(Img,null=True,  on_delete=models.CASCADE)
+    
     box_id = models.CharField(max_length=1, help_text='ABCDE')
     pred_cls = models.CharField(max_length=20)
     html_file = models.CharField(max_length=20, null=True)
@@ -79,11 +89,51 @@ class Detection(models.Model):
         return str(self.img_name) + ' ' + self.context
 
 
+issue = [
+    ('other','other(please fill in below)'),
+    ('wrong','mis-classification'),
+    ('background','background/health leaf detected'),
+]
+
+pest = [
+    ('mosquito_early', 'mosquito_early'),
+    ('mosquito_late','mosquito_late'),
+    ('brownblight', 'brownblight'),
+    ('fungi_early', 'fungi_early'),
+    ('blister', 'blister'),
+    ('algal', 'algal'),
+    ('miner', 'miner'),
+    ('thrips', 'thrips'),
+    ('roller', 'roller'),
+    ('moth', 'tortrix'),
+    ('tortrix',  'tortrix'),
+    ('flushworm', 'flushworm'),
+    ('tortrix',  'tortrix'),
+    ('not', 'not a disease'),
+    ('unknown', 'unknown disease'),
+]
+
 class Feedback(models.Model):
 
     pred = models.ForeignKey(Detection, on_delete=models.CASCADE)
     date = models.DateTimeField(default=datetime.now)
+    @property
+    def image_preview(self):
+        imgd = self.pred.img_data
+        if imgd.img_url:
+            thumbnail = get_thumbnail(imgd.img_url,
+                                   '300x300',
+                                   upscale=False,
+                                   crop=False,
+                                   quality=100)
+            return format_html('<img src="{}" width="{}" height="{}">'.format(thumbnail.url, thumbnail.width, thumbnail.height))
+        return ""
+    issue = models.CharField(max_length=50, default='other', choices=issue)
     feedback = models.TextField(max_length=100, null=True, blank=True, help_text='user feedback')
+    true_label = models.CharField(max_length=20, null=True, choices=pest)
+    review = models.TextField(max_length=100, null=True, blank=True, help_text='profesional review')
+    
+
 
     class Meta:
         ordering = ['-date']

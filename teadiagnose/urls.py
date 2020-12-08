@@ -17,21 +17,26 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from imgUp.views import uploadImg, main, getStart, showDemo, showHtml, showHistory, feedback
+from imgUp.views import main, uploadImg, showHtml, showHistory, feedback, showImg, errorpage, add_region
 from iBp.views import ibpinterface
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', getStart),
-    path('demopage/', showDemo),
-    path('uploadImg/', uploadImg, name='uploadImg'),
-    path('showImg/', main),
-    path('showHistory/', showHistory),
-    # path('showImg/', feedback),
+    # path('demopage/', showDemo),
     path('descript/<str:f>/', showHtml),
-    path('showImg/<str:f>/', main),
     path('iBpInterface/', ibpinterface),
+    #----------------------------------------------
+    path('', main, name='home'),
+    path('show/<img_id>/', showImg, name='show_image'),
+    path('upload/', uploadImg, name='upload'),
+    path('region/', add_region, name='add_region'),
+    path('history/', showHistory, name='get_history'),
+    path('feedback/', feedback, name='send_feedback'),
+    path('error/<issue>/', errorpage, name='error'),
+    
+] 
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

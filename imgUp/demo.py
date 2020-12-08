@@ -6,7 +6,7 @@ import csv
 import shutil
 from cv2 import cv2
 import numpy as np
-from .models import Img, Detection, Prediction
+from .models import Img, Detection
 from mmcv.image import imread, imwrite
 from datetime import datetime
 
@@ -141,10 +141,13 @@ def draw_det_bboxes_A(img_name,
         labels = labels[inds]
         scores = scores[inds]
 
-    Pred = Prediction(img_name = str(imgd),
-                        pred_num = labels.shape[0],
-                        img = imgd)
-    Pred.save()
+    # Pred = Prediction(img_name = str(imgd),
+    #                     pred_num = labels.shape[0],
+    #                     img = imgd)
+    # Pred.save()
+
+    imgd.pred_num = labels.shape[0]
+    imgd.save()
 
     ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     i = 0
@@ -158,7 +161,7 @@ def draw_det_bboxes_A(img_name,
         bbox = bbox*ratio
         bbox_int = bbox.astype(np.int32)
 
-        write_det(Pred,
+        write_det(imgd,
                 box_id,
                 pred_cls,
                 score,
@@ -187,7 +190,7 @@ def draw_det_bboxes_A(img_name,
 
 
 
-def write_det(Pred, box_id, pred_cls, score, bbox_int):
+def write_det(Img, box_id, pred_cls, score, bbox_int):
     table = {
         'mosquito_early': '盲椿象_早期',
         'mosquito_late':'盲椿象_晚期',
@@ -222,13 +225,13 @@ def write_det(Pred, box_id, pred_cls, score, bbox_int):
         'flushworm': 'flushworm',
     }
 
-    pred_id = str(Pred).split('.')[0] + '_' + box_id
+    pred_id = str(Img).split('.')[0] + '_' + box_id
 
     context = '{:s}: {:s} score: {:.3f}'.format(box_id, table[pred_cls], score)
     print(context)
     det = Detection(
         pred_id = pred_id,
-        img_name = Pred,
+        img_data = Img,
         box_id = box_id,
         pred_cls = pred_cls,
         html_file = htable[pred_cls],
