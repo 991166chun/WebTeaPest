@@ -3,6 +3,9 @@ ori_image/
 img/
 iBp_temp/
 mmdetection/
+*.jpg
+static/admin/
+imgUp/migrations/
 # Distribution / packaging
 .Python
 build/
