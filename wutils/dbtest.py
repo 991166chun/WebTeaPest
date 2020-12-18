@@ -15,13 +15,11 @@ for det in all_det:
     print(type(det.img_data))
     det.save()
     
-#     # c += 1
+    # c += 1
 
 
-# all_prediction = Prediction.objects.all()
-# for pre in all_prediction:
-#     img = pre.img
-#     img.pred_num = pre.pred_num
-#     img.save()
-
-
+all_prediction = Prediction.objects.all()
+for pre in all_prediction:
+    img = pre.img
+    img.pred_num = pre.pred_num
+    img.save()

@@ -1,28 +1,37 @@
-from django.shortcuts import render, redirect, reverse
-from django.http import HttpResponseRedirect
-from .models import Img, Detection, Feedback
-from .forms import Feedbacks
-from .demo import demo
-from datetime import datetime
-#from django.utils import timezone
-#import pytz
 import os
 import shutil
 import json
+from django.views.generic import ListView, CreateView, UpdateView
+from django.shortcuts import render, redirect, reverse
+from django.http import HttpResponseRedirect, HttpResponse
+from .models import Img, Detection, Feedback
+# from .forms import Feedbacks, RegionForm
+from TeaData.models import County, City
+from .demo import demo
+from .exifGps import get_gps
+from datetime import datetime
+import shortuuid
+from django.utils import timezone
+import pytz
 
 # Create your views here.
 
 default_context = {
-    'error_message' : '',
-    'imgs': 'img_model',
-    'dets': 'dets query set',
-    'dets2': 'dets query set',
+    'counties' : County.objects.all(),
+    'cities' : City.objects.none(),
+    'imgs' : Img.objects.get(img_id='noimg')
 }
+
+issue_d = {
+    '1':'wrong',
+    '2':'background',
+    '3':'other'
+    }
 
 
 def main(request):
-
-    return render(request, 'index.html')
+    context = {}
+    return render(request, 'index.html', {**default_context, **context})
             
 def id2result(imgid):
     try: 
@@ -39,13 +48,13 @@ def uploadImg(request):
         # if True:
         try:
             img_name = request.FILES.get('img')
-            datatime = datetime.now()
-            img_name, img = rename_time(img_name, datatime)
+            img_name, img = rename_time(img_name)
 
             num = demo(img_name, img)
 
-            return id2result(img.img_name)
+            return id2result(img.img_id)
         except:
+
             err = 'wrong_input'
             url = reverse('error', kwargs={'issue': err} )
             return redirect('{}#upload'.format(url))
@@ -53,34 +62,32 @@ def uploadImg(request):
     return render(request, 'imgUpload.html')
 
 
-def rename_time(img_mem, datatime):
-    dt = datatime
-
-    img = Img(img_name = img_mem,
-                img_url=img_mem,
-                date=dt)
-    img.save()
+def rename_time(img_mem):
     
-    img_name = str(img_mem)
-    date = '{:02d}{:02d}{:02d}{:02d}{:02d}{:02d}{:02d}'.format(dt.year-2000,
-                                                             dt.month, dt.day,
-                                                             dt.hour, dt.minute, 
-                                                             dt.second, dt.microsecond % 100)
-    newname = date + '.' + img_name.split('.')[-1]
+    uid = shortuuid.ShortUUID().random(length=8)
 
-    o_img = 'media/img/' + img_name 
-    n_img = 'media/img/' + newname
-    os.rename(o_img, n_img)
-
-    copimg = 'media/ori_image/' + newname
-    shutil.copyfile(n_img, copimg)
-
-    img.img_name = date
-    img.img_url = 'img/' + newname
-
+    img = Img(img_id=uid,
+              img_url=img_mem)
     img.save()
 
-    return n_img, img
+    url = img.img_url.url
+
+    basename = os.path.basename(url)
+    imgname = 'media/img/' + basename 
+    copimg = 'media/ori_image/' + basename
+
+    print(imgname)
+    print(copimg)
+
+    shutil.copyfile(imgname, copimg)
+
+    gps = get_gps(imgname)
+    print(gps)
+    if gps is not None:
+        img.gps = str(gps)
+        img.save()
+
+    return imgname, img
 
 def showHistory(request):
     try:
@@ -99,19 +106,19 @@ def errorpage(request, issue):
         'wrong_input': 'ERROR: 未選擇檔案or檔名須為英文',
         'not_yet': 'ERROR: 未有影像上傳，請先上傳影像',
     }
-    img = Img.objects.get(img_name='noimg')
+    img = Img.objects.get(img_id='noimg')
     context = {
         'error_message' : errors[issue],
         'imgs': img,
     }
-    return render(request, 'index.html', context)
+    return render(request, 'index.html', {**default_context, **context})
     
 
 def showHtml(request, f):
     context = {}
     values = request.path
     print(f)
-    return render(request, values[1:], context)
+    return render(request, values[1:], {**default_context, **context})
 
 def showImg(request, img_id=None):
     
@@ -120,7 +127,7 @@ def showImg(request, img_id=None):
 
     else:
         try:
-            img = Img.objects.get(img_name=img_id)
+            img = Img.objects.get(img_id=img_id)
         except:
             err = 'id_not_found'
             url = reverse('error', kwargs={'issue': err} )
@@ -130,20 +137,21 @@ def showImg(request, img_id=None):
     context = {
         'imgs': img,
         'dets': dets,
-        'dets2': dets,
     }
-    return render(request, 'index.html', context)
+    return render(request, 'index.html', {**default_context, **context})
 
 def feedback(request):
 
     if request.POST['feedback'] is not '':
 
         pred_id = request.POST['pred_id']
+        issue_num = request.POST['issue'][0]
+
         det = Detection.objects.get(pred_id=pred_id)
         fb = Feedback(
-            pred = det,
+            pred = det, 
             date = datetime.now(),
-            issue= request.POST['issue'],
+            issue= issue_d[issue_num],
             feedback = request.POST['feedback'],
         )
         fb.save()
@@ -151,16 +159,42 @@ def feedback(request):
     img_id = request.POST['img_id']
     return id2result(img_id)
 
+# class UpdateRegionView(UpdateView):
+#     model = Img
+#     form_class = RegionForm
+#     success_url = reverse_lazy('person_changelist')
+
+def load_cities(request):
+    
+    # print('load city~~!!')
+    if request.method == 'GET' and request.is_ajax():
+        county = request.GET.get('county')
+        selectCounty = County.objects.get(name=county)
+        cities = City.objects.filter(County=selectCounty)
+        # print("cities are: ", cities)
+        result_set = []
+        for city in cities:
+            # print("city name", city.name)
+            result_set.append({'name': city.name})
+        return HttpResponse(json.dumps(result_set), content_type='application/json')
+
+        # return render(request, 'index.html', {'cities': cities})
+    
+
+
 def add_region(request):
     if True:
     # try:
         imgid = request.POST['imgid']
-        img = Img.objects.get(img_name=imgid)
+        print(imgid)
+        img = Img.objects.get(img_id=imgid)
 
-        region = request.POST['region']
+        county = request.POST['county']
+        city = request.POST['city']
         altitude = request.POST['altitude']
 
-        img.region = region
+        img.county = County.objects.get(name=county)
+        img.city = City.objects.get(name=city)
         img.altitude = altitude
 
         img.save()
@@ -200,3 +234,8 @@ def det_to_json(img_name, result, classes):
         else:
             pass
     
+def mail_test(request):
+
+    pass
+
+

@@ -51,74 +51,13 @@
                         <p class="text-white-75 font-weight-light mb-5">
                             © 2020 Developed by BiME, National Taiwan University
                             <br>
-                        <a class="btn btn-primary btn-xl js-scroll-trigger my-2" href="#portfolio">開始辨識</a>
+                        <a class="btn btn-primary btn-xl js-scroll-trigger my-2" href="#upload">開始辨識</a>
                     </div>
                 </div>
             </div>
         </header>
-        <!-- tutorial-->
-        <section class="page-section-A bg-primary" id="portfolio">
 
-            <div class="container-fluid">
-                <h2 class="text-center text-white font-weight-bold mt-1">辨識流程與服務</h2>
-                <hr class="divider my-2" />
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 text-center py-5">
-                        <div class="mt-3">
-                            <a class="portfolio-box" href="{% static 'assets/img/portfolio/fullsize/1.jpg' %}">
-                                <i class="fas fa-4x fa-camera-retro text-primary mb-4"></i>
-                                <div class="portfolio-box-caption">
-                                    <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/1.jpg' %}" alt="" />
-                                </div>
-                                <h3 class="h4 mb-2 text-step">影像上傳</h3>
-                                <p class="text-muted mb-0">使用手機拍照或透過電腦上傳田間病蟲害影像</p>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 text-center py-5">
-                        <div class="mt-3">
-                            <a class="portfolio-box" href="{% static 'assets/img/portfolio/fullsize/2.jpg' %}">
-                                <i class="fas fa-4x fa-poll-h text-primary mb-4"></i>
-                                <div class="portfolio-box-caption">
-                                    <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/2.jpg' %}" alt="" />
-                                </div>
-                                <h3 class="h4 mb-2 text-step">病蟲害預測</h3>
-                                <p class="text-muted mb-0">檢視病蟲害預測結果，模型會預測受病害葉片位置並辨識病蟲害種類</p>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 text-center py-5 ">
-                        <div class="mt-3">
-                            <a class="portfolio-box" href="{% static 'assets/img/portfolio/fullsize/3.jpg' %}">
-                                <i class="fas fa-4x fa-comment-medical text-primary mb-4"></i>
-                                <div class="portfolio-box-caption">
-                                    <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/3.jpg' %}" alt="" />
-                                </div>
-                                <h3 class="h4 mb-2 text-step">結果查看</h3>
-                                <p class="text-muted mb-0">展開結果可以查看病蟲害簡介，並透過連結至植保系統查看建議用藥</p>
-                            </a>
-                            
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 text-center py-5">
-                        <div class="mt-3">
-                            <a class="portfolio-box" href="{% static 'assets/img/portfolio/fullsize/4.jpg' %}">
-                                <i class="fas fa-4x fa-question-circle text-primary mb-4"></i>
-                                <div class="portfolio-box-caption ">
-                                    <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/4.jpg' %}" alt="" />
-                                </div>
-                                <h3 class="h4 mb-2 text-step">誤判回報</h3>
-                                <p class="text-muted mb-0">
-                                    如果對判斷結果有疑問，可進行誤判回報，
-                                    該回報可以給專業人員處理結果並協助日後辨識模型的改進</p>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="page-section-B bg-primary" id="upload">
+        <section class="page-section-A bg-primary" id="upload">
             <div class="container">
             
                 <h2 class="text-center text-white font-weight-bold">上傳或紀錄查詢</h2>
@@ -129,7 +68,7 @@
                 </p>
                 <div class="row justify-content-center">
                     <div class="col-lg-6 col-md-6 text-center">
-                        <h3 class="h4 mb-2 text-step">上傳田間影像</h3>
+                        <h3 class="h4  text-step mb-2 mt-0">上傳田間影像</h3>
                         <p class="text-muted mb-0">upload In-field image</p>
                         
                         <form action="{% url 'upload' %}" method="post" class="md-form" enctype="multipart/form-data">
@@ -145,7 +84,7 @@
                     </div>
 
                     <div class="col-lg-6 col-md-6 text-center">
-                        <h3 class="h4 text-step  mb-2 mt-4">查詢過往判別影像(使用影像ID)</h3>
+                        <h3 class="h4 text-step  mb-2 mt-0">查詢過往判別影像(使用影像ID)</h3>
                         <p class="text-muted mb-0">
                             Inquiry for Previous Identified Image (Using Image ID)</p>
                         
@@ -164,6 +103,68 @@
         </section>
 
         
+        <!-- tutorial-->
+        <section class="page-section-B bg-primary" id="portfolio">
+
+            <div class="container-fluid">
+                <h2 class="text-center text-white font-weight-bold mt-1">辨識流程與服務說明</h2>
+                <hr class="divider my-2" />
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 text-center py-5">
+                        <div class="mt-3">
+                            <a class="portfolio-box" href="{% static 'assets/img/portfolio/fullsize/01.jpg' %}">
+                                <i class="fas fa-4x fa-camera-retro text-primary mb-4"></i>
+                                <div class="portfolio-box-caption">
+                                    <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/01.jpg' %}" alt="" />
+                                </div>
+                                <h3 class="h4 mb-2 text-step">影像上傳</h3>
+                                <p class="text-muted mb-0">使用手機拍照或透過電腦上傳田間病蟲害影像</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center py-5">
+                        <div class="mt-3">
+                            <a class="portfolio-box" href="{% static 'assets/img/portfolio/fullsize/02.jpg' %}">
+                                <i class="fas fa-4x fa-poll-h text-primary mb-4"></i>
+                                <div class="portfolio-box-caption">
+                                    <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/02.jpg' %}" alt="" />
+                                </div>
+                                <h3 class="h4 mb-2 text-step">病蟲害預測</h3>
+                                <p class="text-muted mb-0">檢視病蟲害預測結果，模型會預測受病害葉片位置並辨識病蟲害種類</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center py-5 ">
+                        <div class="mt-3">
+                            <a class="portfolio-box" href="{% static 'assets/img/portfolio/fullsize/03.jpg' %}">
+                                <i class="fas fa-4x fa-comment-medical text-primary mb-4"></i>
+                                <div class="portfolio-box-caption">
+                                    <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/03.jpg' %}" alt="" />
+                                </div>
+                                <h3 class="h4 mb-2 text-step">結果查看</h3>
+                                <p class="text-muted mb-0">展開結果可以查看病蟲害簡介，並透過連結至植保系統查看建議用藥</p>
+                            </a>
+                            
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center py-5">
+                        <div class="mt-3">
+                            <a class="portfolio-box" href="{% static 'assets/img/portfolio/fullsize/04.jpg' %}">
+                                <i class="fas fa-4x fa-question-circle text-primary mb-4"></i>
+                                <div class="portfolio-box-caption ">
+                                    <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/04.jpg' %}" alt="" />
+                                </div>
+                                <h3 class="h4 mb-2 text-step">誤判回報</h3>
+                                <p class="text-muted mb-0">
+                                    如果對判斷結果有疑問，可進行誤判回報，
+                                    該回報可以給專業人員處理結果並協助日後辨識模型的改進</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Result-->
         <section class="page-section bg-dark text-white" id="result">
 
@@ -171,7 +172,7 @@
                 <hr class="divider" />
 
             <p class="text-info text-center text-yellow mb-4">
-                Image ID:  {{ imgs.img_name }} </p>
+                Image ID:  {{ imgs.img_id }} </p>
 
             <div class="container">
                 <div class="row">
@@ -228,17 +229,17 @@
                                                                 <label class="mx-1" for="issue">狀況回報:</label>
                                                                 <select class="form-control mx-1" name="issue">
                                                                     <option>------</option>
-                                                                    <!-- <option>病蟲害種類誤判</option>
-                                                                    <option>背景或健康葉片被誤判</option>
-                                                                    <option>其他(請於下方欄位填寫)</option>
-                                                                     -->
-                                                                    <option>mis-classification</option>
+                                                                    <option>1.病蟲害種類誤判</option>
+                                                                    <option>2.背景或健康葉片被誤判</option>
+                                                                    <option>3.其他(請於下方欄位填寫)</option>
+                                                                    
+                                                                    <!-- <option>mis-classification</option>
                                                                     <option>background/health leaf detected</option>
-                                                                    <option>other(please fill in below)</option>
+                                                                    <option>other(please fill in below)</option> -->
                                                                 </select>
                                                             <label for="feedback">誤判情況 Situation of misclassification</label>
                                                             <textarea class="form-control" name="feedback" rows="5"></textarea>
-                                                            <input name="img_id" type="hidden" value="{{ imgs.img_name }}" readonly>
+                                                            <input name="img_id" type="hidden" value="{{ imgs.img_id }}" readonly>
                                                         </div>
 
                                                         <div class="modal-footer">
@@ -258,35 +259,7 @@
                         </div>
 
                         <hr class="divider my-4 mr-8" />
-                        <h3 class="h4 text-step  mb-2 mt-2">請問本影像的拍攝地點與海拔?</h3>
-                        <!-- <p class="text-muted mb-0">
-                            region and altitude</p> -->
-
-                        <form class="form-inline  text-left mt-3" action="{% url 'add_region' %}" method="post">
-                            {% csrf_token %}
-                            <div class="form-group text-left">
-                                <label class="mx-1" for="region">縣市別:</label>
-                                <select class="form-control mx-1" name="region">
-                                    <option>------</option>
-                                    <option>Taipei city</option>
-                                    <option>New Taipei city</option>
-                                    <option>Thô-hn̂g</option>
-                                    <option>Shinchiku</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="mx-1" for="altitude">海拔高度:</label>
-                                <select class="form-control mx-1 ml-2" name="altitude">
-                                    <option>---m ~ ---m</option>
-                                    <option>0m ~ 500m</option>
-                                    <option>500m ~ 1000m</option>
-                                    <option>1500m ~ 2000m</option>
-                                    <option>2000m ~ </option>
-                                </select>
-                            </div>
-                            <input name="imgid" type="hidden" value="{{ imgs.img_name }}" readonly>
-                            <button type="submit" class="btn btn-info ml-3 mt-3">送出</button>
-                        </form>
+                        {% include 'regionform.html' %}
                     </div>
                 </div>
             </div>
@@ -313,6 +286,7 @@
                         <i class="fas fa-envelope fa-3x mb-3 text-muted"></i>
                         <!-- Make sure to change the email address in BOTH the anchor text and the link target below!-->
                         <a class="d-block" href="sslmailbox@ntu.edu.tw">sslmailbox@ntu.edu.tw</a>
+                        <a class="d-block" href="{% url 'mailtest' %}">mailtest</a>
                     </div>
                 </div>
             </div>
@@ -324,23 +298,14 @@
         
         
         <!-- Bootstrap core JS-->
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Third party plugin JS-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
         <!-- Core theme JS-->
         <script src="{% static 'js/scripts.js' %}"></script>
+        
 
-        {% for det2 in dets2  %}
-        <script>
-        $(function(){
-            $("#peko{{det2.box_id}}").load("descript/{{det2.html_file}}.html");
-        });
-        </script>
-        {% endfor %}
-        <script>
-            $("#pekoCC").load("test.html");
-    </script>
     </body>
 </html>

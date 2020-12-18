@@ -14,26 +14,33 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+# from .admin import admin_site
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from imgUp.views import main, uploadImg, showHtml, showHistory, feedback, showImg, errorpage, add_region
+from imgUp import views 
 from iBp.views import ibpinterface
+
+admin.site.site_header = 'TeaDiag - Administration'
+admin.site.site_title = 'TeaDiagAdmin'
+admin.autodiscover()
+admin.site.enable_nav_sidebar = False
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('demopage/', showDemo),
-    path('descript/<str:f>/', showHtml),
+    path('descript/<str:f>/', views.showHtml),
     path('iBpInterface/', ibpinterface),
     #----------------------------------------------
-    path('', main, name='home'),
-    path('show/<img_id>/', showImg, name='show_image'),
-    path('upload/', uploadImg, name='upload'),
-    path('region/', add_region, name='add_region'),
-    path('history/', showHistory, name='get_history'),
-    path('feedback/', feedback, name='send_feedback'),
-    path('error/<issue>/', errorpage, name='error'),
-    
+    path('', views.main, name='home'),
+    path('show/<img_id>/', views.showImg, name='show_image'),
+    path('upload/', views.uploadImg, name='upload'),
+    path('region/', views.add_region, name='add_region'),
+    path('history/', views.showHistory, name='get_history'),
+    path('feedback/', views.feedback, name='send_feedback'),
+    path('error/<issue>/', views.errorpage, name='error'),
+    path('mailtest/', views.errorpage, name='mailtest'),
+    path('loadcities/', views.load_cities, name='ajax_load_cities'),
 ] 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

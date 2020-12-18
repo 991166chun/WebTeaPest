@@ -225,12 +225,13 @@ def write_det(Img, box_id, pred_cls, score, bbox_int):
         'flushworm': 'flushworm',
     }
 
-    pred_id = str(Img).split('.')[0] + '_' + box_id
+    pred_id = str(Img) + '_' + box_id
 
     context = '{:s}: {:s} score: {:.3f}'.format(box_id, table[pred_cls], score)
     print(context)
     det = Detection(
         pred_id = pred_id,
+        img_name = os.path.basename(Img.img_url.url),
         img_data = Img,
         box_id = box_id,
         pred_cls = pred_cls,
