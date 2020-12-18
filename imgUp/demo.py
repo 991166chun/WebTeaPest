@@ -8,6 +8,7 @@ from cv2 import cv2
 import numpy as np
 from .models import Img, Detection
 from mmcv.image import imread, imwrite
+import pytz
 from datetime import datetime
 
 
@@ -53,22 +54,22 @@ def read_label_color(file, BGR=True):
 
 def pred_img(img_name):
 
+    print('import library')
+
     from mmdet.apis import init_detector, inference_detector
 
-    config_file = '/home/chun/TeaDisease/configs/_xm/cascade_webdemo.py'
+    print('load model')
+    config_file = '/home/ssl/TeaDisease/configs/_xm/cascade_webdemo.py'
     # download the checkpoint from model zoo and put it in `checkpoints/`
-    checkpoint_file = '/home/chun/TeaDisease/work_dirs/web/crcnn_101x_final.pth'
+    checkpoint_file = '/home/ssl/TeaDisease/work_dirs/web/crcnn_101x_final.pth'
     # build the model from a config file and a checkpoint file
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
     # test a single image
-    
+    print('test a single image')
     #img_out = 'media/output/' + img_name
     result = inference_detector(model, img_name)
-
-    colorfile = 'imgUp/color.txt'
-    colors = read_label_color(colorfile)
     
-    bbox_result, segm_result = result[:-1], None
+    bbox_result, _ = result[:-1], None
     bboxes = np.vstack(bbox_result)
     labels = [
         np.full(bbox.shape[0], i, dtype=np.int32)
@@ -82,8 +83,9 @@ def pred_img(img_name):
 def demo(img_name, imgd):
 
     labels, bboxes, classes = pred_img(img_name)
+    print('drawing box')
 
-    colorfile = 'imgUp/color.txt'
+    colorfile = '/home/ssl/WebTeaPest/imgUp/color.txt'
     colors = read_label_color(colorfile)
 
     i = draw_det_bboxes_A(img_name,
