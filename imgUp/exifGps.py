@@ -30,7 +30,7 @@ def get_geotagging(exif):
             for (key, val) in GPSTAGS.items():
                 if key in exif[idx]:
                     geotagging[val] = exif[idx][key]
-    print(geotagging)
+    # print(geotagging)
     return geotagging
 
 def printdict(dick):
@@ -51,7 +51,7 @@ def get_decimal_from_dms(dms, ref):
     return round(degrees + minutes + seconds, 5)
 
 def get_coordinates(geotags):
-    print(geotags)
+    # print(geotags)
     lat = get_decimal_from_dms(geotags['GPSLatitude'], geotags['GPSLatitudeRef'])
     lon = get_decimal_from_dms(geotags['GPSLongitude'], geotags['GPSLongitudeRef'])
 

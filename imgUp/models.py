@@ -126,9 +126,10 @@ class Detection(models.Model):
 
 
 issue = [
-    ('other','其他'),
     ('wrong','病蟲害種類誤判'),
     ('background','背景或健康葉片被誤判'),
+    ('nodetect', '病蟲害未被辨識'),
+    ('other','其他'),
 ]
 
 pest = [

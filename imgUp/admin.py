@@ -56,7 +56,7 @@ class FeedbackAdmin(admin.ModelAdmin):
             
     check_selected.short_description = '將選取項目設為已完成'
     
-    readonly_fields = ('image_preview','link_to_Img')
+    readonly_fields = ('pred', 'date', 'image_preview', 'link_to_Img')
     
     # list_display = ('feedbackID', 'feedback', 'review', 'date', 'finishCheck')
     list_display = ('pred', 'feedback', 'review', 'date', 'finishCheck')

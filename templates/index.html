@@ -44,14 +44,15 @@
                         <h1 class="text-uppercase text-white font-weight-bold">
                             茶葉病蟲害辨識平台</h1>
                         <h1 class="text-uppercase text-white font-weight-normal text-subtitle">
-                            Tea Disease and Pest Identification Platform</h1>    
+                            Tea Foliar Disease and Pest Damage Identification Platform </h1>    
                         <hr class="divider my-4" />
                     </div>
                     <div class="col-lg-8 align-self-baseline">
                         <p class="text-white-75 font-weight-light mb-5">
-                            © 2020 Developed by BiME, National Taiwan University
-                            <br>
-                        <a class="btn btn-primary btn-xl js-scroll-trigger my-2" href="#upload">開始辨識</a>
+                            © 2020 by Sensing and Spectroscopy Lab,<br> 
+                            Department of Biomechatronics Engineering, National Taiwan University<br>
+                            
+                        <a class="btn btn-primary btn-xl js-scroll-trigger mt-3" href="#upload">Start</a>
                     </div>
                 </div>
             </div>
@@ -61,33 +62,35 @@
             <div class="container">
             
                 <h2 class="text-center text-white font-weight-bold">上傳或紀錄查詢</h2>
+                <h4 class="text-center text-white font-weight-light xdd">Image Uploading or Record Lookup</h4>
+
                 <hr class="divider" />
 
                 <p class="text-danger text-center font-weight-bold mb-2">
                     {{ error_message }}
                 </p>
                 <div class="row justify-content-center">
-                    <div class="col-lg-6 col-md-6 text-center">
-                        <h3 class="h4  text-step mb-2 mt-0">上傳田間影像</h3>
-                        <p class="text-muted mb-0">upload In-field image</p>
-                        
+                    <div class="col-lg-6 col-md-6 text-center mb-5">
+                        <i class="fas fa-4x fa-file-upload text-primary mb-2"></i>
+                        <h3 class="h4  text-step mb-2 mt-0">上傳影像</h3>
+                        <h6 class="text-subtitle mb-0">Upload an Image</h6>
                         <form action="{% url 'upload' %}" method="post" class="md-form" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <label for="file-upload" class="btn btn-primary mt-3">
-                                選擇檔案 Upload an Image
+                            <label for="file-upload" class="btn btn-upload mt-3">
+                                選擇檔案 Select File
                             </label>
                             <br>
                             <input id="file-upload"  type="file"  style="display:none" name="img">
                             <!-- <br> -->
-                                <input class="btn btn-primary" type="submit" value="進行辨識 Start Identification">
+                                <input class="btn btn-upload" type="submit" value="進行辨識 Start an Identification">
                         </form>   
                     </div>
 
-                    <div class="col-lg-6 col-md-6 text-center">
+                    <div class="col-lg-6 col-md-6 text-center mb-5">
+                        <i class="fas fa-4x fa-search text-primary mb-2"></i>
                         <h3 class="h4 text-step  mb-2 mt-0">查詢過往判別影像(使用影像ID)</h3>
-                        <p class="text-muted mb-0">
-                            Inquiry for Previous Identified Image (Using Image ID)</p>
-                        
+                        <h6 class="text-subtitle mb-0">
+                            Look up an Identified Record (Using Image ID)</h6>
                         <form class="form-inline justify-content-center mt-3" action="{% url 'get_history' %}" method="post">
                             {% csrf_token %}
                             <div class="form-group ">
@@ -108,6 +111,8 @@
 
             <div class="container-fluid">
                 <h2 class="text-center text-white font-weight-bold mt-1">辨識流程與服務說明</h2>
+                <h4 class="text-center text-white font-weight-light mb-0">
+                    Identification Process / Service Description</h4>
                 <hr class="divider my-2" />
                 <div class="row">
                     <div class="col-lg-3 col-md-6 text-center py-5">
@@ -117,7 +122,9 @@
                                 <div class="portfolio-box-caption">
                                     <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/01.jpg' %}" alt="" />
                                 </div>
-                                <h3 class="h4 mb-2 text-step">影像上傳</h3>
+                                <h3 class="h4 text-step">影像上傳</h3>
+                                <h6 class="h6 mb-2 text-subtitle">Image Uploading</h6>
+
                                 <p class="text-muted mb-0">使用手機拍照或透過電腦上傳田間病蟲害影像</p>
                             </a>
                         </div>
@@ -130,6 +137,7 @@
                                     <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/02.jpg' %}" alt="" />
                                 </div>
                                 <h3 class="h4 mb-2 text-step">病蟲害預測</h3>
+                                <h6 class="h6 mb-2 text-subtitle">Disease/Pest Prediction</h6>
                                 <p class="text-muted mb-0">檢視病蟲害預測結果，模型會預測受病害葉片位置並辨識病蟲害種類</p>
                             </a>
                         </div>
@@ -142,6 +150,7 @@
                                     <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/03.jpg' %}" alt="" />
                                 </div>
                                 <h3 class="h4 mb-2 text-step">結果查看</h3>
+                                <h6 class="h6 mb-2 text-subtitle">Information for Identification</h6>
                                 <p class="text-muted mb-0">展開結果可以查看病蟲害簡介，並透過連結至植保系統查看建議用藥</p>
                             </a>
                             
@@ -155,6 +164,7 @@
                                     <img class="img-fluid" src="{% static 'assets/img/portfolio/thumbnails/04.jpg' %}" alt="" />
                                 </div>
                                 <h3 class="h4 mb-2 text-step">誤判回報</h3>
+                                <h6 class="h6 mb-2 text-subtitle">Misclassification Report</h6>
                                 <p class="text-muted mb-0">
                                     如果對判斷結果有疑問，可進行誤判回報，
                                     該回報可以給專業人員處理結果並協助日後辨識模型的改進</p>
@@ -231,7 +241,8 @@
                                                                     <option>------</option>
                                                                     <option>1.病蟲害種類誤判</option>
                                                                     <option>2.背景或健康葉片被誤判</option>
-                                                                    <option>3.其他(請於下方欄位填寫)</option>
+                                                                    <option>3.病蟲害未被辨識</option>
+                                                                    <option>4.其他(請於下方欄位填寫)</option>
                                                                     
                                                                     <!-- <option>mis-classification</option>
                                                                     <option>background/health leaf detected</option>
@@ -293,7 +304,12 @@
         </section>
         <!-- Footer-->
         <footer class="bg-drak py-5">
-            <div class="container"><div class="small text-center text-muted">Copyright © 2020 - BiME, National Taiwan University</div></div>
+            <div class="container">
+                <div class="small text-center text-muted">
+                    Copyright © 2020 by Sensing and Spectroscopy Lab,<br> 
+                    Department of Biomechatronics Engineering, National Taiwan University<br>
+                </div>
+            </div>
         </footer>
         
         

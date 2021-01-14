@@ -5,6 +5,8 @@ iBp_temp/
 mmdetection/
 static/
 *.jpg
+*.log
+*.json
 # Distribution / packaging
 .Python
 build/
@@ -29,3 +31,5 @@ settings.json
 
 static/admin/
 imgUp/migrations/
+media/iBp_temp/input.jpg
+media/iBp_temp/output.jpg

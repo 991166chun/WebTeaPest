@@ -22,10 +22,12 @@ default_context = {
     'imgs' : Img.objects.get(img_id='noimg')
 }
 
+
 issue_d = {
     '1':'wrong',
     '2':'background',
-    '3':'other'
+    '3':'nodetect',
+    '4':'other'
     }
 
 
@@ -64,10 +66,14 @@ def uploadImg(request):
 
 def rename_time(img_mem):
     
-    uid = shortuuid.ShortUUID().random(length=8)
+    # uid = shortuuid.ShortUUID().random(length=8)
 
-    img = Img(img_id=uid,
-              img_url=img_mem)
+    img = Img(img_url=img_mem)
+    img.save()
+
+    ms_id = str(img.img_url).split('-')[-1].split('.')[0]
+    print('img_id: ', ms_id)
+    img.img_id = ms_id
     img.save()
 
     url = img.img_url.url
@@ -75,14 +81,10 @@ def rename_time(img_mem):
     basename = os.path.basename(url)
     imgname = 'media/img/' + basename 
     copimg = 'media/ori_image/' + basename
-
-    print(imgname)
-    print(copimg)
-
     shutil.copyfile(imgname, copimg)
 
     gps = get_gps(imgname)
-    print(gps)
+    print('gps: ', gps)
     if gps is not None:
         img.gps = str(gps)
         img.save()
@@ -122,18 +124,17 @@ def showHtml(request, f):
 
 def showImg(request, img_id=None):
     
-    if img_id == None:
-        img = Img.objects.latest()
-
-    else:
-        try:
-            img = Img.objects.get(img_id=img_id)
-        except:
-            err = 'id_not_found'
-            url = reverse('error', kwargs={'issue': err} )
-            return redirect('{}#upload'.format(url))
-
+    print(img_id)
+    try:
+        img = Img.objects.get(img_id=img_id)
+    except:
+        err = 'id_not_found'
+        url = reverse('error', kwargs={'issue': err} )
+        return redirect('{}#upload'.format(url))
+    
+   
     dets = Detection.objects.filter(img_data=img)
+
     context = {
         'imgs': img,
         'dets': dets,
@@ -183,10 +184,10 @@ def load_cities(request):
 
 
 def add_region(request):
-    if True:
-    # try:
+    # if True:
+    try:
         imgid = request.POST['imgid']
-        print(imgid)
+        print('set region imgid:' , imgid)
         img = Img.objects.get(img_id=imgid)
 
         county = request.POST['county']
@@ -199,10 +200,10 @@ def add_region(request):
 
         img.save()
         return id2result(imgid)
-    # except:
-    #     err = 'not_yet'
-    #     url = reverse('error', kwargs={'issue': err} )
-    #     return redirect('{}#upload'.format(url))
+    except:
+        err = 'not_yet'
+        url = reverse('error', kwargs={'issue': err} )
+        return redirect('{}#upload'.format(url))
 
     
 def db_test(img, result):
