@@ -102,6 +102,14 @@
                     </div>
 
                 </div>
+                <div class="toast toast-upload" id="myToast" >
+                    <div class="toast-body ">
+                        <div> 
+                            已選擇檔案! <br> 
+                            Please click "Start Identification".</div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -254,7 +262,7 @@
                                                         </div>
 
                                                         <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-info btn-md">Submit</button>
+                                                            <button type="submit" class="btn btn-info btn-md" id="report">Submit</button>
                                                             <button type="button" class="btn btn-warning btn-md" data-dismiss="modal">Close</button>
                                                         </div>
                                                     </div>
@@ -271,6 +279,13 @@
 
                         <hr class="divider my-4 mr-8" />
                         {% include 'regionform.html' %}
+                    </div>
+                </div>
+                <div class="toast toast-upload" id="ToastRe" >
+                    <div class="toast-body ">
+                        <div> 
+                            已收到您的回應! <br> 
+                            Thanks for your report.</div>
                     </div>
                 </div>
             </div>
@@ -312,7 +327,24 @@
             </div>
         </footer>
         
-        
+        <script>
+            $(document).ready(function(){
+                $("#file-upload").change(function(){
+                    console.log('AAAAAAAAAAAAA')
+                    $("#myToast").toast({ delay: 2000 });
+                    $("#myToast").toast('show');
+                }); 
+            });
+            </script>
+        <script>
+            $(document).ready(function(){
+                $("#report").click(function(){
+                    console.log('AAAAAAAAAAAAA')
+                    $("#ToastRe").toast({ delay: 5000 });
+                    $("#ToastRe").toast('show');
+                }); 
+            });
+            </script>
         <!-- Bootstrap core JS-->
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
