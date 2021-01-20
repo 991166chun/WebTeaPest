@@ -24,13 +24,26 @@ admin.site.register(Prediction)
 # admin.site.register(Feedbacks)
 
 class FeedbackAdmin(admin.ModelAdmin):
-
+    list_filter = ('finishCheck',)
     def del_selected(modeladmin, request, queryset):
         queryset.delete()
     del_selected.short_description = "Delete selected without check"
 
-    list_display = ('pred', 'feedback', 'date')
-    actions = [del_selected,]
+    def check_selected(modeladmin, request, queryset):
+        
+        for fb in queryset:
+            fb.finishCheck = True
+            fb.save()
+            
+    check_selected.short_description = '將選取項目設為已完成'
+
+    list_display = ('feedbackID', 'feedback', 'review', 'date', 'finishCheck')
+    actions = [del_selected, check_selected]
+
+    def link_to_user(self, obj):
+        link = reverse("admin:imgUp_Img_change", args=[obj.user_id])
+        return format_html('<a href="{}">Edit {}</a>', link, obj.Img.img_name)
+    link_to_user.short_description = 'Edit user'
 
 admin.site.register(Feedback, FeedbackAdmin)
 

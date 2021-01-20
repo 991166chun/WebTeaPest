@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from .admin import admin_site
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -21,7 +22,7 @@ from imgUp.views import uploadImg, main, getStart, showDemo, showHtml, showHisto
 from iBp.views import ibpinterface
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin_site.urls),
     path('', getStart),
     path('demopage/', showDemo),
     path('uploadImg/', uploadImg, name='uploadImg'),

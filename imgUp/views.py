@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from .models import Img, Detection, Prediction, Feedback
 from .forms import Feedbacks
 from .demo import demo
+import pytz
 from datetime import datetime
 #from django.utils import timezone
 #import pytz
@@ -79,12 +80,12 @@ def rename_time(img_mem, datatime):
     img_name = str(img_mem)
     date = '{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}'.format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
     newname = date + '.' + img_name.split('.')[-1]
+    media_root =  '/home/ssl/WebTeaPest/media/img/'
 
-    o_img = 'media/img/' + img_name 
-    n_img = 'media/img/' + newname
+    o_img = media_root + img_name 
+    n_img = media_root + newname
     os.rename(o_img, n_img)
-
-    copimg = 'media/ori_image/' + newname
+    copimg = '/home/ssl/WebTeaPest/media/ori_image/' + newname
     shutil.copyfile(n_img, copimg)
 
     img.img_name = date
@@ -155,7 +156,7 @@ def showDemo(request):
 
 def feedback(request):
 
-    if request.POST['feedback'] is not '':
+    if request.POST['feedback'] != '':
 
         # form = Feedbacks(request.POST)
         # print('form is valid :', form.is_valid())

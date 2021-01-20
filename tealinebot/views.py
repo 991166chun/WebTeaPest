@@ -54,6 +54,7 @@ def callback(request):
             with open(file_path, 'wb') as fd:
                 for chunk in message_content.iter_content():
                     fd.write(chunk)
+                    
 
             context = demoLinebot(file_path)
 

@@ -7,11 +7,13 @@ from django.utils.html import format_html
 # Create your models here.
 class Img(models.Model):
 
-    img_name = models.CharField(max_length=100, default='unknow', help_text='image name of the prediction')
+    img_name = models.CharField(max_length=100, default='unknow', 
+                                help_text='image name of the prediction')
     img_url = models.ImageField(upload_to='img')
     #out_url = models.ImageField(upload_to='output')
     date = models.DateTimeField(default=datetime.now)
-
+    pred_num = models.IntegerField(default=0)
+    
     class Meta:
         ordering = ['-date']
         get_latest_by = "date"
@@ -27,6 +29,7 @@ class Img(models.Model):
                                    upscale=False,
                                    crop=False,
                                    quality=100)
+            # print(thumbnail.url)
             try:
                 return format_html('<img src="{}" width="{}" height="{}">'.format(thumbnail.url, thumbnail.width, thumbnail.height))
             except:
@@ -63,7 +66,9 @@ class Detection(models.Model):
     '''
     
     pred_id = models.CharField(max_length=100, primary_key=True)
-    img_name = models.ForeignKey(Prediction, on_delete=models.CASCADE)
+    img_name = models.ForeignKey(Prediction, on_delete=models.DO_NOTHING)
+    pred_img = models.ForeignKey(Img, null=True, on_delete=models.CASCADE)
+    
     box_id = models.CharField(max_length=1, help_text='ABCDE')
     pred_cls = models.CharField(max_length=20)
     html_file = models.CharField(max_length=20, null=True)
@@ -83,11 +88,17 @@ class Detection(models.Model):
 
 
 class Feedback(models.Model):
-
+    '''
+    trueLabel: 原有13類、非病蟲害、未知病蟲害
+    '''
+    feedbackID = models.CharField(max_length=20,default='2011270122A')
     pred = models.ForeignKey(Detection, on_delete=models.CASCADE)
     date = models.DateTimeField(default=datetime.now)
     feedback = models.TextField(max_length=100, null=True, blank=True, help_text='user feedback')
-
+    review = models.TextField(max_length=100, null=True, blank=True, help_text='profesional review')
+    trueLabel = models.CharField(max_length=20, default='其他', help_text='chose problem')
+    finishCheck = models.BooleanField(default=False)
+    
     class Meta:
         ordering = ['-date']
         get_latest_by = "date"
