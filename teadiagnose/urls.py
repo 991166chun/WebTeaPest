@@ -14,24 +14,37 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from .admin import admin_site
+# from .admin import admin_site
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from imgUp.views import uploadImg, main, getStart, showDemo, showHtml, showHistory, feedback
+from imgUp import views 
 from iBp.views import ibpinterface
 
-urlpatterns = [
-    path('admin/', admin_site.urls),
-    path('', getStart),
-    path('demopage/', showDemo),
-    path('uploadImg/', uploadImg, name='uploadImg'),
-    path('showImg/', main),
-    path('showHistory/', showHistory),
-    # path('showImg/', feedback),
-    path('descript/<str:f>/', showHtml),
-    path('showImg/<str:f>/', main),
-    path('iBpInterface/', ibpinterface),
-    path('tealinebot/', include('tealinebot.urls'))
+admin.site.site_header = 'TeaDiag - Administration'
+admin.site.site_title = 'TeaDiagAdmin'
+admin.autodiscover()
+admin.site.enable_nav_sidebar = False
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # path('demopage/', showDemo),
+    path('descript/<str:f>/', views.showHtml),
+    path('iBpInterface/', ibpinterface),
+    #----------------------------------------------
+    path('', views.main, name='home'),
+    path('show/<img_id>/', views.showImg, name='show_image'),
+    path('upload/', views.uploadImg, name='upload'),
+    path('region/', views.add_region, name='add_region'),
+    path('history/', views.showHistory, name='get_history'),
+    path('feedback/', views.feedback, name='send_feedback'),
+    path('error/<issue>/', views.errorpage, name='error'),
+    path('mailtest/', views.errorpage, name='mailtest'),
+    path('loadcities/', views.load_cities, name='ajax_load_cities'),
+    path('tealinebot/', include('tealinebot.urls'))
+] 
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+
