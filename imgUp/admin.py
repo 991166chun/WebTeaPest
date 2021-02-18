@@ -59,7 +59,7 @@ class FeedbackAdmin(admin.ModelAdmin):
     readonly_fields = ('pred', 'date', 'image_preview', 'link_to_Img')
     
     # list_display = ('feedbackID', 'feedback', 'review', 'date', 'finishCheck')
-    list_display = ('pred', 'feedback', 'review', 'date', 'finishCheck')
+    list_display = ('pred', 'issue', 'review', 'date', 'finishCheck')
     actions = [del_selected, check_selected]
     
     list_filter = ('finishCheck',)
@@ -81,7 +81,7 @@ class FeedbackAdmin(admin.ModelAdmin):
     fieldsets = [(None, {'fields': (('pred', 'date'),)}),
                 ('結果圖預覽', { 'classes': ('collapse', 'open'),
                               'fields': (('image_preview','link_to_Img'),) }),
-                 ('使用者回報', {'fields': (('issue', 'feedback'),)}),
+                 ('使用者回報', {'fields': (('issue', 'feedback'),('contact'))}),
                  ('茶改場檢閱', {'fields': (('true_label', 'review'),)}),
                  (None, {'fields': ('finishCheck',)})
                  ]

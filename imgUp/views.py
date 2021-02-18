@@ -5,12 +5,11 @@ from django.views.generic import ListView, CreateView, UpdateView
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from .models import Img, Detection, Feedback
-# from .forms import Feedbacks, RegionForm
 from TeaData.models import County, City
 from .demo import demo
 from .exifGps import get_gps
 from datetime import datetime
-import shortuuid
+from numpy.random import randint
 from django.utils import timezone
 import pytz
 
@@ -50,9 +49,13 @@ def uploadImg(request):
         # if True:
         try:
             img_name = request.FILES.get('img')
-            img_name, img = rename_time(img_name)
+            img_name, img = save_image(img_name)
 
             num = demo(img_name, img)
+            if request.POST.get('nope', False):
+                pass
+            else:
+                save_region(request, img)
 
             return id2result(img.img_id)
         except:
@@ -64,16 +67,16 @@ def uploadImg(request):
     return render(request, 'imgUpload.html')
 
 
-def rename_time(img_mem):
+def save_image(img_mem):
     
-    # uid = shortuuid.ShortUUID().random(length=8)
-
     img = Img(img_url=img_mem)
     img.save()
 
     ms_id = str(img.img_url).split('-')[-1].split('.')[0]
-    print('img_id: ', ms_id)
-    img.img_id = ms_id
+    nn = "%02d" % randint(0,99)
+    imgid = nn + ms_id
+    print('img_id: ', imgid)
+    img.img_id = imgid
     img.save()
 
     url = img.img_url.url
@@ -104,9 +107,9 @@ def showHistory(request):
 def errorpage(request, issue):
     
     errors = {
-        'id_not_found': 'ERROR: 輸入ID錯誤，該影像不存在',
-        'wrong_input': 'ERROR: 未選擇檔案or檔名須為英文',
-        'not_yet': 'ERROR: 未有影像上傳，請先上傳影像',
+        'id_not_found': 'ERROR: 輸入ID錯誤，該影像不存在 The Image ID not exist! ',
+        'wrong_input': 'ERROR: 未選擇檔案or檔名須為英文 The uploaded file must be Image!',
+        'not_yet': 'ERROR: 未有影像上傳，請先上傳影像 Please upload image first.',
     }
     img = Img.objects.get(img_id='noimg')
     context = {
@@ -147,23 +150,20 @@ def feedback(request):
 
         pred_id = request.POST['pred_id']
         issue_num = request.POST['issue'][0]
+        email = request.POST['contact']
 
         det = Detection.objects.get(pred_id=pred_id)
         fb = Feedback(
             pred = det, 
             date = datetime.now(),
             issue= issue_d[issue_num],
+            contact=email,
             feedback = request.POST['feedback'],
         )
         fb.save()
 
     img_id = request.POST['img_id']
     return id2result(img_id)
-
-# class UpdateRegionView(UpdateView):
-#     model = Img
-#     form_class = RegionForm
-#     success_url = reverse_lazy('person_changelist')
 
 def load_cities(request):
     
@@ -178,10 +178,24 @@ def load_cities(request):
             # print("city name", city.name)
             result_set.append({'name': city.name})
         return HttpResponse(json.dumps(result_set), content_type='application/json')
-
-        # return render(request, 'index.html', {'cities': cities})
     
 
+def save_region(request, img):
+
+    if True:
+    # try:
+        county = request.POST['county']
+        city = request.POST['city']
+        altitude = request.POST['altitude']
+        if county != "":
+            img.county = County.objects.get(name=county)
+        if city != "":
+            if city[0] != "-":
+                img.city = City.objects.get(name=city, County=img.county)
+        if altitude[0] != "-":
+            img.altitude = altitude
+
+        img.save()
 
 def add_region(request):
     # if True:
@@ -195,7 +209,7 @@ def add_region(request):
         altitude = request.POST['altitude']
 
         img.county = County.objects.get(name=county)
-        img.city = City.objects.get(name=city)
+        img.city = City.objects.get(name=city, County=img.county)
         img.altitude = altitude
 
         img.save()

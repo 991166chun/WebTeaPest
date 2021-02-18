@@ -10,6 +10,7 @@ from .models import Img, Detection
 from mmcv.image import imread, imwrite
 import pytz
 from datetime import datetime
+from django.conf import settings
 
 
 def demo_test():
@@ -59,9 +60,10 @@ def pred_img(img_name):
     from mmdet.apis import init_detector, inference_detector
 
     # print('load model')
-    config_file = '/home/chun/TeaDisease/configs/_xm/cascade_webdemo.py'
+    TEADISEASE_DIR = settings.TEADISEASE_DIR
+    config_file = os.path.join(TEADISEASE_DIR, 'configs/_xm/webdemo.py')
     # download the checkpoint from model zoo and put it in `checkpoints/`
-    checkpoint_file = '/home/chun/TeaDisease/work_dirs/web/crcnn_101x_final.pth'
+    checkpoint_file = os.path.join(TEADISEASE_DIR, 'work_dirs/web/webdemo.pth')
     # build the model from a config file and a checkpoint file
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
     # test a single image
@@ -85,7 +87,7 @@ def demo(img_name, imgd):
     labels, bboxes, classes = pred_img(img_name)
     # print('drawing box')
 
-    colorfile = '/home/chun/teadiagnose/imgUp/color.txt'
+    colorfile = os.path.join(settings.BASE_DIR, 'imgUp/color.txt')
     colors = read_label_color(colorfile)
 
     i = draw_det_bboxes_A(img_name,
@@ -215,25 +217,23 @@ def write_det(Img, box_id, pred_cls, score, bbox_int, nodet=False):
             ymin = 0,
             xmax = 0,
             ymax = 0,
-            context = '未偵測到病蟲害',
+            context = '未偵測到病蟲害 No tea pest detected',
         )
         det.save()
     else:
         table = {
-            'mosquito_early': '盲椿象_早期',
-            'mosquito_late':'盲椿象_晚期',
-            'brownblight': '赤葉枯病',
-            'fungi_early': '真菌性病害_早期',
-            'blister': '茶餅病',
-            'algal': '藻斑病',
-            'miner': '潛葉蠅',
-            'thrips':'薊馬',
-            'roller': '茶捲葉蛾',
-            'mosquito_late': '盲椿象_晚期',
-            'mosquito_early': '盲椿象_早期',
-            'moth': '茶姬捲葉蛾',
-            'tortrix': '茶姬捲葉蛾',
-            'flushworm': '黑姬捲葉蛾',
+            'brownblight': ['赤葉枯病', 'Brown blight'],
+            'fungi_early': ['真菌性病害_早期', 'Fungi disease -early'],
+            'blister': ['茶餅病', 'Blister blight'],
+            'algal': ['藻斑病', 'Algal leaf spot'],
+            'miner': ['潛葉蠅', 'Tea leaf miner'],
+            'thrips': ['薊馬', 'Tea thrips'],
+            'roller': ['茶捲葉蛾', 'Oriental tea tortrix'],
+            'mosquito_late': ['盲椿象_晚期', 'Tea mosquito bug -late'],
+            'mosquito_early': ['盲椿象_早期', 'Tea mosquito bug -early'],
+            'moth': ['茶姬捲葉蛾', 'Small tea tortrix'],
+            'tortrix': ['茶姬捲葉蛾', 'Small tea tortrix'],
+            'flushworm': ['黑姬捲葉蛾', 'Tea flushworm'],
         }
 
         htable = {
@@ -253,7 +253,7 @@ def write_det(Img, box_id, pred_cls, score, bbox_int, nodet=False):
 
         pred_id = str(Img) + '_' + box_id
 
-        context = '{:s}: {:s} score: {:.3f}'.format(box_id, table[pred_cls], score)
+        context = '{:s}: {:s} {:s}, score: {:.3f}'.format(box_id, *table[pred_cls], score)
         print(context)
         det = Detection(
             pred_id = pred_id,

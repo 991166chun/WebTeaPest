@@ -5376,13 +5376,13 @@
     }
 
     .toast-upload {
+      width: 30rem;
       position: fixed;
-      top: 0;
-      left: 0;
-      margin-top: 12%;
-      margin-left: 5%;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       color: #ffffff;
-      background-color: rgba(36, 36, 36, 0.8);
+      background-color: rgba(36, 36, 36, 0.85);
       background-clip: padding-box;
     }
     
@@ -9906,6 +9906,12 @@
     .text-subtitle {
       font-size: 1.0rem !important;
       color: rgb(255, 254, 211) !important;
+    }
+
+    .text-detect {
+      font-size: 1.2rem !important;
+      font-weight: normal !important;
+      color: rgb(255, 255, 255) !important;
     }
 
     .text-decoration-none {

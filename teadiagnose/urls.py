@@ -41,10 +41,9 @@ urlpatterns = [
     path('error/<issue>/', views.errorpage, name='error'),
     path('mailtest/', views.errorpage, name='mailtest'),
     path('loadcities/', views.load_cities, name='ajax_load_cities'),
-    path('tealinebot/', include('tealinebot.urls'))
+    path('tealinebot/', include('tealinebot.urls')),
+    # ------------------------------------------------
 ] 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
-
 

@@ -1,7 +1,7 @@
 from django.core.mail import send_mail, EmailMessage
 from django.http import HttpResponse
 from django.conf import settings
-
+from TeaData.models import Person
 '''
 Title: 病蟲害辨識系統每周回報
 
@@ -43,10 +43,24 @@ def sendSimpleEmail(subject, text, mailTo):
 def sendAttachEmail(subject, text, mailTo, attach):
     print(mailTo)
     msg = EmailMessage(subject, text, from_email, mailTo)
-    
     msg.attach_file(attach)
-    
     msg.send()
+
+def getUserData():
+    names = []
+    mails = []
+    p_data = Person.objects.filter(recieve_report=True)
+    
+    if len(p_data) == 0:
+        return names, mails
+    else:
+        for p in p_data:
+            names.append(p.name)
+            mails.append(p.email)
+        return names, mails
+    
+
+
 
 # u = '研究員'
 # w = '01/01-01/07'

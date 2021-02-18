@@ -178,6 +178,7 @@ class Feedback(models.Model):
     feedback = models.TextField(max_length=100, null=True, blank=True, help_text='user feedback')
     true_label = models.CharField(max_length=20, null=True, choices=pest)
     review = models.TextField(max_length=100, null=True, blank=True, help_text='profesional review')
+    contact = models.EmailField(max_length=254, null=True, blank=True)
     finishCheck = models.BooleanField(default=False)
 
 

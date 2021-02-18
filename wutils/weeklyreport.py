@@ -1,8 +1,9 @@
 from imgUp.models import Img, Detection, Feedback
 from django.utils import timezone
 from datetime import datetime, timedelta
+import os
 import matplotlib.pyplot as plt
-from wutils.mail import sendSimpleEmail, mailform, sendAttachEmail
+from wutils.mail import sendSimpleEmail, mailform, sendAttachEmail, getUserData
 import pytz
 import csv
 
@@ -19,12 +20,13 @@ htable = {
     'moth': '茶姬捲葉蛾',
     'tortrix': '茶姬捲葉蛾',
     'flushworm': '黑姬捲葉蛾',
+    'NaN': '未偵測到病蟲害'
 }
 
 columns = ['起始日', '結算日', '影像張數',
             '赤葉枯病', '茶餅病', '藻斑病', '真菌性病害',
             '潛葉蠅', '薊馬', '盲椿象_早期', '盲椿象_晚期',
-            '茶捲葉蛾', '茶姬捲葉蛾', '黑姬捲葉蛾', '備註']
+            '茶捲葉蛾', '茶姬捲葉蛾', '黑姬捲葉蛾','未偵測到病蟲害','備註']
 
 class Collector():
 
@@ -40,6 +42,12 @@ class Collector():
 
         self.disease_num = 11
 
+    @property
+    def search_period(self):
+        b = self.begin.split("-")
+        s = self.settle.split("-")
+        
+        return "%s/%s-%s/%s" % (b[1], b[2], s[1], s[2])
 
     def upload_count(self):
 
@@ -97,18 +105,22 @@ class Collector():
     
     def init_csv(self, csvfile):
 
-        with open(csvfile, 'w', newline='', encoding='utf-8-sig') as csvf:
+        if os.path.exists(csvfile):
+            print("Found existing record file.")
 
-            writer = csv.writer(csvf)
+        else:
+            with open(csvfile, 'w', newline='', encoding='utf-8-sig') as csvf:
 
-            example = ['2000-01-01', '2000-01-07', '20',
-                         '1', '2', '3', '4', '5',
-                         '6', '7', '8', '9', '10', '11', '測試資料']
+                writer = csv.writer(csvf)
 
-            writer.writerow(columns)
-            writer.writerow(example)
+                example = ['2000-01-01', '2000-01-07', '20',
+                            '1', '2', '3', '4', '5',
+                            '6', '7', '8', '9', '10', '11', '測試資料']
 
-        print('created new report file: ',csvfile)
+                writer.writerow(columns)
+                writer.writerow(example)
+
+            print('created new report file: ',csvfile)
 
     def gen_text(self):
 
@@ -126,7 +138,7 @@ class Collector():
         
         text.append('\t備註: %s' % (report_data[-1]))
 
-        txtfile = 'wutils/report-%s.txt' % report_data[1]
+        txtfile = 'wutils/reports/report-%s.txt' % report_data[1]
 
         with open(txtfile, 'w') as f:
             for t in text:
@@ -150,18 +162,39 @@ class Collector():
         # fig.savefig(fig_name)
         # with open()
 
-
-# print(__name__)
-if __name__ == "__main__":
+def main():
     coller = Collector()
     print('Images uploaded this week: ',coller.upload_count())
-    csv_test = 'wutils/test.csv'
-    # coller.init_csv(csv_test)
+    csv_test = 'wutils/reports/UploadRecord.csv'
+    coller.init_csv(csv_test)
     coller.write_csv(csv_test)
-    subject = '病蟲害辨識系統每周回報'
-    user = '研究員'
-    week = '01/01-01/07'
-    text = mailform(user, week, coller.begin, coller.settle)
-    attach = coller.gen_text()
-    mailTo = ['r07631006@ntu.edu.tw',]
-    sendAttachEmail(subject, text, mailTo, attach)
+    
+    users, mails = getUserData()
+
+    if len(users) == 0:
+        print('no registed user, pass sending email')
+    else:
+        subject = '病蟲害辨識系統每周回報'
+        week = coller.search_period
+        attach = coller.gen_text()
+        for user, mail in zip(users, mails):
+            text = mailform(user, week, coller.begin, coller.end)
+            mailTo = [mail,]
+            sendAttachEmail(subject, text, mailTo, attach)
+
+
+# print(__name__)
+if __name__ == "builtins":
+    main()
+    # coller = Collector()
+    # print('Images uploaded this week: ',coller.upload_count())
+    # csv_test = 'wutils/test.csv'
+    # # coller.init_csv(csv_test)
+    # coller.write_csv(csv_test)
+    # subject = '病蟲害辨識系統每周回報'
+    # user = '研究員'
+    # week = coller.search_period
+    # text = mailform(user, week, coller.begin, coller.end)
+    # attach = coller.gen_text()
+    # mailTo = ['r07631006@ntu.edu.tw','991166chun@gmail.com']
+    # sendAttachEmail(subject, text, mailTo, attach)
